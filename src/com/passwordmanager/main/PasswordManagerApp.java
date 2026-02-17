@@ -35,9 +35,7 @@ public class PasswordManagerApp {
             String password = sc.nextLine();
 
             userService.register(name, email, password);
-        }
-
-        else if (choice == 2) {
+        } else if (choice == 2) {
             System.out.print("Email: ");
             String email = sc.nextLine();
 
@@ -49,9 +47,7 @@ public class PasswordManagerApp {
             if (loggedInUser != null) {
                 showDashboard(loggedInUser);   // ✅ ADDED
             }
-        }
-
-        else if (choice == 3) {
+        } else if (choice == 3) {
             System.out.print("Enter email: ");
             String email = sc.nextLine();
 

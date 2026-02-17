@@ -1,5 +1,7 @@
 package com.passwordmanager.service;
+
 import java.util.Scanner;
+
 import com.passwordmanager.dao.UserDao;
 import com.passwordmanager.model.User;
 import com.passwordmanager.util.PasswordEncryptor;

@@ -1,4 +1,5 @@
 package com.passwordmanager.service;
+
 import com.passwordmanager.util.RandomPasswordGenerator;
 import com.passwordmanager.dao.PasswordDao;
 import com.passwordmanager.model.PasswordEntry;
