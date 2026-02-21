@@ -1,8 +1,12 @@
 package com.passwordmanager.controller;
 
-import com.passwordmanager.dto.*;
+import com.passwordmanager.dto.PasswordGenerateRequest;
+import com.passwordmanager.dto.PasswordGenerateResponse;
 import com.passwordmanager.service.PasswordUtilityService;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/utility")
@@ -20,5 +24,4 @@ public class PasswordUtilityController {
 
         return service.generatePassword(request);
     }
-
 }

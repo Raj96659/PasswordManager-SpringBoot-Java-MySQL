@@ -2,8 +2,12 @@ package com.passwordmanager.controller;
 
 import com.passwordmanager.dto.*;
 import com.passwordmanager.service.PasswordEntryService;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -16,17 +20,32 @@ public class PasswordController {
         this.service = service;
     }
 
+    private String getUsername(HttpServletRequest request) {
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        return authentication.getName();
+    }
+
     @PostMapping("/add")
     public PasswordEntryResponse addPassword(
-            @RequestParam String username,
-            @RequestBody PasswordEntryRequest request) {
+            HttpServletRequest request,
+            @RequestBody PasswordEntryRequest body) {
 
-        return service.addPassword(username, request);
+        String username = getUsername(request);
+        return service.addPassword(username, body);
     }
 
     @GetMapping("/all")
     public List<PasswordEntryResponse> getAllPasswords(
-            @RequestParam String username) {
+            Principal principal) {
+
+        String username = principal.getName();
 
         return service.getAllPasswords(username);
     }
@@ -34,33 +53,36 @@ public class PasswordController {
     @GetMapping("/view/{id}")
     public PasswordViewResponse viewPassword(
             @PathVariable Long id,
-            @RequestParam String username,
-            @RequestParam String masterPassword) {
+            @RequestParam String masterPassword,
+            HttpServletRequest request) {
 
+        String username = getUsername(request);
         return service.viewPassword(id, masterPassword, username);
     }
 
     @PutMapping("/favorite/{id}")
     public String toggleFavorite(
             @PathVariable Long id,
-            @RequestParam String username) {
+            HttpServletRequest request) {
 
+        String username = getUsername(request);
         return service.toggleFavorite(id, username);
     }
 
     @GetMapping("/search")
     public List<PasswordEntryResponse> search(
-            @RequestParam String username,
-            @RequestParam String keyword) {
+            @RequestParam String keyword,
+            HttpServletRequest request) {
 
+        String username = getUsername(request);
         return service.search(username, keyword);
     }
 
     @GetMapping("/audit/weak")
     public String checkWeakPasswords(
-            @RequestParam String username) {
+            HttpServletRequest request) {
 
+        String username = getUsername(request);
         return service.checkWeakPasswords(username);
     }
-
 }

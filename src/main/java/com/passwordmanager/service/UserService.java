@@ -4,6 +4,7 @@ import com.passwordmanager.entity.User;
 import com.passwordmanager.entity.VerificationCode;
 import com.passwordmanager.repository.UserRepository;
 import com.passwordmanager.repository.VerificationCodeRepository;
+import com.passwordmanager.util.JwtUtil;
 import com.passwordmanager.util.OtpUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder encoder;
     private final VerificationCodeRepository verificationCodeRepository;
+    private String encryptionSalt;
+
 
 
     public UserService(UserRepository userRepository, PasswordEncoder encoder, VerificationCodeRepository verificationCodeRepository) {
@@ -50,25 +53,29 @@ public class UserService {
             throw new RuntimeException("Invalid password");
         }
 
-        if (!user.isTwoFactorEnabled()) {
-            return "Login successful (2FA disabled)";
+        if (user.isTwoFactorEnabled()) {
+
+            // 🔐 Generate OTP
+            String otp = OtpUtil.generateOtp();
+
+            VerificationCode code = new VerificationCode();
+            code.setCode(otp);
+            code.setUsed(false);
+            code.setUser(user);
+            code.setExpiryTime(LocalDateTime.now().plusMinutes(5));
+
+            verificationCodeRepository.save(code);
+
+            // Print OTP in terminal (simulation)
+            System.out.println("OTP for user " + username + " is: " + otp);
+
+            return "2FA required";
         }
 
-        // Generate OTP
-        String otp = OtpUtil.generateOtp();
-
-        VerificationCode code = new VerificationCode();
-        code.setCode(otp);
-        code.setUsed(false);
-        code.setUser(user);
-        code.setExpiryTime(LocalDateTime.now().plusMinutes(5));
-
-        verificationCodeRepository.save(code);
-
-        System.out.println("OTP for user " + username + " is: " + otp);
-
-        return "OTP sent to registered device";
+        return JwtUtil.generateToken(username);
     }
+
+
 
     public String verifyOtp(String username, String otpInput) {
 
@@ -96,7 +103,7 @@ public class UserService {
         code.setUsed(true);
         verificationCodeRepository.save(code);
 
-        return "Login successful with 2FA";
+        return JwtUtil.generateToken(username);
     }
 
     public String toggle2FA(String username) {
