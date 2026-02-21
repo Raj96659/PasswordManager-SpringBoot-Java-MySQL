@@ -8,6 +8,7 @@ import com.passwordmanager.entity.User;
 import com.passwordmanager.repository.PasswordEntryRepository;
 import com.passwordmanager.repository.UserRepository;
 import com.passwordmanager.util.EncryptionUtil;
+import com.passwordmanager.util.PasswordStrengthUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -184,4 +185,37 @@ public class PasswordEntryService {
 
         return responses;
     }
+
+    public String checkWeakPasswords(String username) {
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<PasswordEntry> entries =
+                passwordEntryRepository.findByUser(user);
+
+        int weakCount = 0;
+
+        for (PasswordEntry entry : entries) {
+
+            String decrypted;
+
+            try {
+                decrypted = EncryptionUtil.decrypt(
+                        entry.getEncryptedPassword());
+            } catch (Exception e) {
+                throw new RuntimeException("Decryption failed");
+            }
+
+            String strength =
+                    PasswordStrengthUtil.checkStrength(decrypted);
+
+            if (strength.equals("Weak")) {
+                weakCount++;
+            }
+        }
+
+        return "Weak passwords found: " + weakCount;
+    }
+
 }

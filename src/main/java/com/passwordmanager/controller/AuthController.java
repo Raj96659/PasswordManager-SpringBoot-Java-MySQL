@@ -11,7 +11,6 @@ public class AuthController {
 
     private final UserService userService;
 
-    // Manual constructor (instead of @RequiredArgsConstructor)
     public AuthController(UserService userService) {
         this.userService = userService;
     }
@@ -22,10 +21,22 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public User login(@RequestBody LoginRequest request) {
+    public String login(@RequestBody LoginRequest request) {
         return userService.login(
                 request.getUsername(),
-                request.getMasterPassword()
-        );
+                request.getMasterPassword());
+    }
+
+    @PostMapping("/verify-otp")
+    public String verifyOtp(
+            @RequestParam String username,
+            @RequestParam String otp) {
+
+        return userService.verifyOtp(username, otp);
+    }
+
+    @PutMapping("/2fa")
+    public String toggle2FA(@RequestParam String username) {
+        return userService.toggle2FA(username);
     }
 }

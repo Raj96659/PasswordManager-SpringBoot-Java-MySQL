@@ -55,4 +55,12 @@ public class PasswordController {
 
         return service.search(username, keyword);
     }
+
+    @GetMapping("/audit/weak")
+    public String checkWeakPasswords(
+            @RequestParam String username) {
+
+        return service.checkWeakPasswords(username);
+    }
+
 }
