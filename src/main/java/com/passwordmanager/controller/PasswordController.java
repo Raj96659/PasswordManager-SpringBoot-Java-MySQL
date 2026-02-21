@@ -139,4 +139,5 @@ public class PasswordController {
 
         return service.getDashboard(username, masterPassword);
     }
+
 }

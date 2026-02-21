@@ -1,9 +1,13 @@
 package com.passwordmanager.controller;
 
+import com.passwordmanager.dto.ChangeMasterPasswordRequest;
 import com.passwordmanager.dto.LoginRequest;
+import com.passwordmanager.dto.UpdateProfileRequest;
 import com.passwordmanager.entity.User;
 import com.passwordmanager.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -52,4 +56,36 @@ public class AuthController {
 
         return userService.toggle2FA(username);
     }
+
+    @PutMapping("/change-master-password")
+    public String changeMasterPassword(
+            HttpServletRequest request,
+            @RequestBody ChangeMasterPasswordRequest req) {
+
+        String username =
+                (String) request.getAttribute("username");
+
+        return userService.changeMasterPassword(
+                username,
+                req.getCurrentPassword(),
+                req.getNewPassword()
+        );
+    }
+
+    @PutMapping("/profile")
+    public String updateProfile(
+            @RequestBody UpdateProfileRequest req) {
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        String username = authentication.getName();
+
+        return userService.updateProfile(username, req);
+    }
+
 }
