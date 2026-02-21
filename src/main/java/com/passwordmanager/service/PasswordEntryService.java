@@ -14,7 +14,9 @@ import org.springframework.stereotype.Service;
 import javax.crypto.spec.SecretKeySpec;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class PasswordEntryService {
@@ -337,7 +339,7 @@ public class PasswordEntryService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (!encoder.matches(masterPassword,
+        if (!passwordEncoder.matches(masterPassword,
                 user.getMasterPasswordHash())) {
             throw new RuntimeException("Master password incorrect");
         }
@@ -397,5 +399,70 @@ public class PasswordEntryService {
 
         return oldCount;
     }
+
+    public DashboardResponse getDashboard(
+            String username,
+            String masterPassword) {
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!passwordEncoder.matches(masterPassword,
+                user.getMasterPasswordHash())) {
+            throw new RuntimeException("Master password incorrect");
+        }
+
+        SecretKeySpec key =
+                KeyDerivationUtil.deriveKey(
+                        masterPassword,
+                        user.getEncryptionSalt()
+                );
+
+        List<PasswordEntry> entries =
+                passwordEntryRepository.findByUser(user);
+
+        int total = entries.size();
+        int weak = 0;
+        int favorites = 0;
+
+        Map<String, Integer> reusedMap = new HashMap<>();
+
+        for (PasswordEntry entry : entries) {
+
+            if (entry.isFavorite()) favorites++;
+
+            String decrypted =
+                    EncryptionUtil.decrypt(
+                            entry.getEncryptedPassword(),
+                            key);
+
+            String strength =
+                    PasswordStrengthUtil.checkStrength(decrypted);
+
+            if (strength.equals("Weak")) weak++;
+
+            reusedMap.put(
+                    decrypted,
+                    reusedMap.getOrDefault(decrypted, 0) + 1
+            );
+        }
+
+        int reused = 0;
+        for (int count : reusedMap.values()) {
+            if (count > 1) reused++;
+        }
+
+        int old = countOldPasswords(username);
+
+        DashboardResponse response = new DashboardResponse();
+        response.setTotalPasswords(total);
+        response.setWeakPasswords(weak);
+        response.setReusedPasswords(reused);
+        response.setOldPasswords(old);
+        response.setFavoritePasswords(favorites);
+
+        return response;
+    }
+
 
 }

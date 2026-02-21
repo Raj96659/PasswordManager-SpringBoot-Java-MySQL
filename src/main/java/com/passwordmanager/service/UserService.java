@@ -117,5 +117,4 @@ public class UserService {
         return "2FA status updated to: " + user.isTwoFactorEnabled();
     }
 
-
 }

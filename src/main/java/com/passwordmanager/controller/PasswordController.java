@@ -123,4 +123,20 @@ public class PasswordController {
                 masterPassword,
                 encryptedData);
     }
+
+    @GetMapping("/dashboard")
+    public DashboardResponse dashboard(
+            @RequestParam String masterPassword) {
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        String username = authentication.getName();
+
+        return service.getDashboard(username, masterPassword);
+    }
 }
