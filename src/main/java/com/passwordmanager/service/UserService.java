@@ -1,5 +1,6 @@
 package com.passwordmanager.service;
 
+import com.passwordmanager.dto.SecurityQuestionDTO;
 import com.passwordmanager.dto.UpdateProfileRequest;
 import com.passwordmanager.entity.User;
 import com.passwordmanager.entity.VerificationCode;
@@ -20,6 +21,8 @@ import com.passwordmanager.entity.PasswordEntry;
 import com.passwordmanager.entity.SecurityQuestion;
 import com.passwordmanager.util.KeyDerivationUtil;
 import com.passwordmanager.repository.PasswordEntryRepository;
+import com.passwordmanager.dto.RegisterRequest;
+import com.passwordmanager.dto.UpdateSecurityAnswerRequest;
 
 
 
@@ -48,17 +51,57 @@ public class UserService {
     }
 
     // REGISTER
-    public User register(User user) {
+    public String register(RegisterRequest request) {
 
+        // 🔎 Check duplicate username
+        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+            throw new RuntimeException("Username already exists");
+        }
+
+        // 🔎 Check duplicate email
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new RuntimeException("Email already exists");
+        }
+
+        // 🔐 Minimum 3 security questions required
+        if (request.getSecurityQuestions() == null ||
+                request.getSecurityQuestions().size() < 3) {
+
+            throw new RuntimeException(
+                    "Minimum 3 security questions required");
+        }
+
+        // 🧑 Create user
+        User user = new User();
+        user.setEmail(request.getEmail());
+        user.setUsername(request.getUsername());
+        user.setUsername(request.getName());
+        user.setPhone(request.getPhone());
+
+        // 🔐 Hash master password
         user.setMasterPasswordHash(
-                encoder.encode(user.getMasterPasswordHash())
+                encoder.encode(request.getPassword())
         );
 
+        // 🔐 Generate encryption salt
         user.setEncryptionSalt(
                 SaltUtil.generateSalt()
         );
 
-        return userRepository.save(user);
+        userRepository.save(user);
+
+        // 🔐 Save security questions with hashed answers
+        for (SecurityQuestionDTO dto : request.getSecurityQuestions()) {
+
+            SecurityQuestion q = new SecurityQuestion();
+            q.setQuestion(dto.getQuestion());
+            q.setAnswerHash(encoder.encode(dto.getAnswer()));
+            q.setUser(user);
+
+            securityQuestionRepository.save(q);
+        }
+
+        return "User registered successfully";
     }
 
 
@@ -250,6 +293,33 @@ public class UserService {
         return "Profile updated successfully";
     }
 
+    public String updateSecurityAnswer(
+            String username,
+            UpdateSecurityAnswerRequest req) {
 
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // 🔐 Verify master password
+        if (!encoder.matches(req.getMasterPassword(),
+                user.getMasterPasswordHash())) {
+            throw new RuntimeException("Master password incorrect");
+        }
+
+        SecurityQuestion q =
+                securityQuestionRepository.findById(req.getQuestionId())
+                        .orElseThrow(() -> new RuntimeException("Question not found"));
+
+        // 🚨 CRITICAL SECURITY CHECK
+        if (!q.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("Access denied");
+        }
+
+        // 🔐 Hash new answer
+        q.setAnswerHash(encoder.encode(req.getNewAnswer()));
+        securityQuestionRepository.save(q);
+
+        return "Security answer updated";
+    }
 
 }

@@ -1,33 +1,43 @@
-package com.passwordmanager.util;
-
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
 
-public class PasswordGeneratorUtil {
+public static List<String> generatePasswords(
+        int length,
+        boolean useUpper,
+        boolean useLower,
+        boolean useNumbers,
+        boolean useSpecial,
+        boolean excludeSimilar,
+        int count) {
 
-    private static final String UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    private static final String LOWER = "abcdefghijklmnopqrstuvwxyz";
-    private static final String NUMBERS = "0123456789";
-    private static final String SPECIAL = "!@#$%^&*()_+-=[]{}|;:,.<>?";
+    String UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    String LOWER = "abcdefghijklmnopqrstuvwxyz";
+    String NUMBERS = "0123456789";
+    String SPECIAL = "!@#$%^&*()_+-=[]{}|;:,.<>?";
 
-    public static String generatePassword(
-            int length,
-            boolean useUpper,
-            boolean useLower,
-            boolean useNumbers,
-            boolean useSpecial) {
+    StringBuilder pool = new StringBuilder();
 
-        StringBuilder pool = new StringBuilder();
+    if (useUpper) pool.append(UPPER);
+    if (useLower) pool.append(LOWER);
+    if (useNumbers) pool.append(NUMBERS);
+    if (useSpecial) pool.append(SPECIAL);
 
-        if (useUpper) pool.append(UPPER);
-        if (useLower) pool.append(LOWER);
-        if (useNumbers) pool.append(NUMBERS);
-        if (useSpecial) pool.append(SPECIAL);
+    if (excludeSimilar) {
+        String filtered = pool.toString()
+                .replaceAll("[0Ol1]", "");
+        pool = new StringBuilder(filtered);
+    }
 
-        if (pool.length() == 0) {
-            throw new RuntimeException("Select at least one character type");
-        }
+    if (pool.length() == 0) {
+        throw new RuntimeException("Select at least one character type");
+    }
 
-        SecureRandom random = new SecureRandom();
+    SecureRandom random = new SecureRandom();
+    List<String> passwords = new ArrayList<>();
+
+    for (int j = 0; j < count; j++) {
+
         StringBuilder password = new StringBuilder();
 
         for (int i = 0; i < length; i++) {
@@ -35,6 +45,8 @@ public class PasswordGeneratorUtil {
             password.append(pool.charAt(index));
         }
 
-        return password.toString();
+        passwords.add(password.toString());
     }
+
+    return passwords;
 }

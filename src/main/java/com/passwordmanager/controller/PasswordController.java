@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/vault")
@@ -138,6 +139,70 @@ public class PasswordController {
         String username = authentication.getName();
 
         return service.getDashboard(username, masterPassword);
+    }
+
+    @GetMapping("/favorites")
+    public List<PasswordEntryResponse> favorites() {
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        String username = authentication.getName();
+
+        return service.getFavoritePasswords(username);
+    }
+
+    @GetMapping("/filter")
+    public List<PasswordEntryResponse> filter(
+            @RequestParam String category) {
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        String username = authentication.getName();
+
+        return service.filterByCategory(username, category);
+    }
+
+    @GetMapping("/sorted")
+    public List<PasswordEntryResponse> sorted(
+            @RequestParam String sortBy) {
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        String username = authentication.getName();
+
+        return service.getSorted(username, sortBy);
+    }
+
+    @GetMapping("/security-alerts")
+    public Map<String, Integer> alerts(
+            @RequestParam String masterPassword) {
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        String username = authentication.getName();
+
+        return passwordEntryService
+                .getSecurityAlerts(username, masterPassword);
     }
 
 }

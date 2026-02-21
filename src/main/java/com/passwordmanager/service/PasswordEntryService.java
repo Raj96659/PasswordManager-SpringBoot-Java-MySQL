@@ -3,6 +3,7 @@ package com.passwordmanager.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.passwordmanager.dto.*;
 import com.passwordmanager.entity.PasswordEntry;
+import com.passwordmanager.entity.SecurityQuestion;
 import com.passwordmanager.entity.User;
 import com.passwordmanager.repository.PasswordEntryRepository;
 import com.passwordmanager.repository.UserRepository;
@@ -18,21 +19,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.passwordmanager.repository.SecurityQuestionRepository;
+
 @Service
 public class PasswordEntryService {
 
     private final PasswordEntryRepository passwordEntryRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final SecurityQuestionRepository securityQuestionRepository;
 
     public PasswordEntryService(
             PasswordEntryRepository passwordEntryRepository,
             UserRepository userRepository,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder, SecurityQuestionRepository securityQuestionRepository) {
 
         this.passwordEntryRepository = passwordEntryRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.securityQuestionRepository = securityQuestionRepository;
     }
 
     // ==========================
@@ -462,6 +467,110 @@ public class PasswordEntryService {
         response.setFavoritePasswords(favorites);
 
         return response;
+    }
+
+    public String updateSecurityAnswer(
+            String username,
+            UpdateSecurityAnswerRequest req) {
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!passwordEncoder.matches(req.getMasterPassword(),
+                user.getMasterPasswordHash())) {
+            throw new RuntimeException("Master password incorrect");
+        }
+
+        SecurityQuestion q =
+                securityQuestionRepository.findById(req.getQuestionId())
+                        .orElseThrow(() -> new RuntimeException("Question not found"));
+
+        q.setAnswerHash(passwordEncoder.encode(req.getNewAnswer()));
+        securityQuestionRepository.save(q);
+
+        return "Security answer updated";
+    }
+
+    public List<PasswordEntryResponse> filterByCategory(
+            String username,
+            String category) {
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<PasswordEntry> entries =
+                passwordEntryRepository.findByUserAndCategory(user, category);
+
+        List<PasswordEntryResponse> responses = new ArrayList<>();
+
+        for (PasswordEntry entry : entries) {
+
+            PasswordEntryResponse response = new PasswordEntryResponse();
+            response.setId(entry.getId());
+            response.setAccountName(entry.getAccountName());
+            response.setWebsite(entry.getWebsite());
+            response.setUsername(entry.getUsername());
+            response.setCategory(entry.getCategory());
+            response.setFavorite(entry.isFavorite());
+            response.setCreatedAt(entry.getCreatedAt());
+
+            responses.add(response);
+        }
+
+        return responses;
+    }
+
+    public Map<String, Integer> getSecurityAlerts(
+            String username,
+            String masterPassword) {
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!passwordEncoder.matches(masterPassword,
+                user.getMasterPasswordHash())) {
+
+            throw new RuntimeException("Master password incorrect");
+        }
+
+        SecretKeySpec key =
+                KeyDerivationUtil.deriveKey(
+                        masterPassword,
+                        user.getEncryptionSalt()
+                );
+
+        List<PasswordEntry> entries =
+                passwordEntryRepository.findByUser(user);
+
+        int weak = 0;
+        Map<String, Integer> reusedMap = new HashMap<>();
+
+        for (PasswordEntry entry : entries) {
+
+            String decrypted =
+                    EncryptionUtil.decrypt(
+                            entry.getEncryptedPassword(), key);
+
+            String strength =
+                    PasswordStrengthUtil.checkStrength(decrypted);
+
+            if (strength.equals("Weak")) weak++;
+
+            reusedMap.put(
+                    decrypted,
+                    reusedMap.getOrDefault(decrypted, 0) + 1);
+        }
+
+        int reused = 0;
+        for (int count : reusedMap.values()) {
+            if (count > 1) reused++;
+        }
+
+        Map<String, Integer> alerts = new HashMap<>();
+        alerts.put("weak", weak);
+        alerts.put("reused", reused);
+
+        return alerts;
     }
 
 

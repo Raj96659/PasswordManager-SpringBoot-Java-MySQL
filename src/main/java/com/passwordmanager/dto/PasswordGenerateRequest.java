@@ -7,6 +7,9 @@ public class PasswordGenerateRequest {
     private boolean useLower;
     private boolean useNumbers;
     private boolean useSpecial;
+    private boolean excludeSimilar;
+    private int count;
+
 
     public PasswordGenerateRequest() {
     }
@@ -49,5 +52,21 @@ public class PasswordGenerateRequest {
 
     public void setUseSpecial(boolean useSpecial) {
         this.useSpecial = useSpecial;
+    }
+
+    public boolean isExcludeSimilar() {
+        return excludeSimilar;
+    }
+
+    public void setExcludeSimilar(boolean excludeSimilar) {
+        this.excludeSimilar = excludeSimilar;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
     }
 }

@@ -5,29 +5,42 @@ import com.passwordmanager.util.PasswordGeneratorUtil;
 import com.passwordmanager.util.PasswordStrengthUtil;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class PasswordUtilityService {
 
-    public PasswordGenerateResponse generatePassword(
+    public List<PasswordGenerateResponse> generatePasswords(
             PasswordGenerateRequest request) {
 
-        String password = PasswordGeneratorUtil.generatePassword(
-                request.getLength(),
-                request.isUseUpper(),
-                request.isUseLower(),
-                request.isUseNumbers(),
-                request.isUseSpecial()
-        );
+        List<String> generated =
+                PasswordGeneratorUtil.generatePasswords(
+                        request.getLength(),
+                        request.isUseUpper(),
+                        request.isUseLower(),
+                        request.isUseNumbers(),
+                        request.isUseSpecial(),
+                        request.isExcludeSimilar(),
+                        request.getCount()
+                );
 
-        String strength =
-                PasswordStrengthUtil.checkStrength(password);
+        List<PasswordGenerateResponse> responses = new ArrayList<>();
 
-        PasswordGenerateResponse response =
-                new PasswordGenerateResponse();
+        for (String password : generated) {
 
-        response.setGeneratedPassword(password);
-        response.setStrength(strength);
+            PasswordGenerateResponse response =
+                    new PasswordGenerateResponse();
 
-        return response;
+            response.setGeneratedPassword(password);
+            response.setStrength(
+                    PasswordStrengthUtil.checkStrength(password)
+            );
+
+            responses.add(response);
+        }
+
+        return responses;
     }
+
 }
