@@ -1,17 +1,16 @@
 package com.passwordmanager.service;
 
-import com.passwordmanager.dto.PasswordEntryRequest;
-import com.passwordmanager.dto.PasswordEntryResponse;
-import com.passwordmanager.dto.PasswordViewResponse;
+import com.passwordmanager.dto.*;
 import com.passwordmanager.entity.PasswordEntry;
 import com.passwordmanager.entity.User;
 import com.passwordmanager.repository.PasswordEntryRepository;
 import com.passwordmanager.repository.UserRepository;
-import com.passwordmanager.util.EncryptionUtil;
-import com.passwordmanager.util.PasswordStrengthUtil;
+import com.passwordmanager.util.*;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.spec.SecretKeySpec;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,26 +33,37 @@ public class PasswordEntryService {
     }
 
     // ==========================
-    // Add Password
-    // ==========================
+// Add Password (Correct Secure Version)
+// ==========================
     public PasswordEntryResponse addPassword(
             String username,
+            String masterPassword,
             PasswordEntryRequest request) {
 
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // ✅ Verify master password
+        if (!passwordEncoder.matches(masterPassword,
+                user.getMasterPasswordHash())) {
+            throw new RuntimeException("Master password incorrect");
+        }
+
+        // ✅ Derive encryption key using real master password
+        SecretKeySpec key =
+                KeyDerivationUtil.deriveKey(
+                        masterPassword,
+                        user.getEncryptionSalt()
+                );
 
         PasswordEntry entry = new PasswordEntry();
         entry.setAccountName(request.getAccountName());
         entry.setWebsite(request.getWebsite());
         entry.setUsername(request.getUsername());
 
-        try {
-            entry.setEncryptedPassword(
-                    EncryptionUtil.encrypt(request.getPassword()));
-        } catch (Exception e) {
-            throw new RuntimeException("Encryption failed");
-        }
+        entry.setEncryptedPassword(
+                EncryptionUtil.encrypt(request.getPassword(), key)
+        );
 
         entry.setCategory(request.getCategory());
         entry.setFavorite(false);
@@ -66,9 +76,70 @@ public class PasswordEntryService {
         return mapToResponse(saved);
     }
 
+
     // ==========================
-    // Get All Passwords
+    // View Password
     // ==========================
+    public PasswordViewResponse viewPassword(
+            Long id,
+            String masterPassword,
+            String username) {
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!passwordEncoder.matches(masterPassword,
+                user.getMasterPasswordHash())) {
+            throw new RuntimeException("Master password incorrect");
+        }
+
+        PasswordEntry entry = passwordEntryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Entry not found"));
+
+        if (!entry.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("Access denied");
+        }
+
+        SecretKeySpec key =
+                KeyDerivationUtil.deriveKey(
+                        masterPassword,
+                        user.getEncryptionSalt()
+                );
+
+        String decrypted =
+                EncryptionUtil.decrypt(
+                        entry.getEncryptedPassword(),
+                        key
+                );
+
+        PasswordViewResponse response = new PasswordViewResponse();
+        response.setAccountName(entry.getAccountName());
+        response.setUsername(entry.getUsername());
+        response.setDecryptedPassword(decrypted);
+
+        return response;
+    }
+
+    // ==========================
+    // Helper
+    // ==========================
+    private PasswordEntryResponse mapToResponse(PasswordEntry entry) {
+
+        PasswordEntryResponse response = new PasswordEntryResponse();
+        response.setId(entry.getId());
+        response.setAccountName(entry.getAccountName());
+        response.setWebsite(entry.getWebsite());
+        response.setUsername(entry.getUsername());
+        response.setCategory(entry.getCategory());
+        response.setFavorite(entry.isFavorite());
+        response.setCreatedAt(entry.getCreatedAt());
+
+        return response;
+    }
+
+    // ==========================
+// Get All Passwords
+// ==========================
     public List<PasswordEntryResponse> getAllPasswords(String username) {
 
         User user = userRepository.findByUsername(username)
@@ -86,48 +157,6 @@ public class PasswordEntryService {
         return responses;
     }
 
-    // ==========================
-    // View Decrypted Password
-    // ==========================
-    public PasswordViewResponse viewPassword(
-            Long id,
-            String masterPassword,
-            String username) {
-
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        // Verify master password
-        if (!passwordEncoder.matches(masterPassword, user.getMasterPasswordHash())) {
-            throw new RuntimeException("Master password incorrect");
-        }
-
-        PasswordEntry entry = passwordEntryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Entry not found"));
-
-        // Ensure entry belongs to user
-        if (!entry.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Access denied");
-        }
-
-        String decrypted;
-        try {
-            decrypted = EncryptionUtil.decrypt(entry.getEncryptedPassword());
-        } catch (Exception e) {
-            throw new RuntimeException("Decryption failed");
-        }
-
-        PasswordViewResponse response = new PasswordViewResponse();
-        response.setAccountName(entry.getAccountName());
-        response.setUsername(entry.getUsername());
-        response.setDecryptedPassword(decrypted);
-
-        return response;
-    }
-
-    // ==========================
-    // Toggle Favorite
-    // ==========================
     public String toggleFavorite(Long id, String username) {
 
         User user = userRepository.findByUsername(username)
@@ -146,26 +175,6 @@ public class PasswordEntryService {
         return "Favorite status updated";
     }
 
-    // ==========================
-    // Helper: Map Entity to Response
-    // ==========================
-    private PasswordEntryResponse mapToResponse(PasswordEntry entry) {
-
-        PasswordEntryResponse response = new PasswordEntryResponse();
-        response.setId(entry.getId());
-        response.setAccountName(entry.getAccountName());
-        response.setWebsite(entry.getWebsite());
-        response.setUsername(entry.getUsername());
-        response.setCategory(entry.getCategory());
-        response.setFavorite(entry.isFavorite());
-        response.setCreatedAt(entry.getCreatedAt());
-
-        return response;
-    }
-
-    // ==========================
-// Search Passwords
-// ==========================
     public List<PasswordEntryResponse> search(
             String username,
             String keyword) {
@@ -197,25 +206,11 @@ public class PasswordEntryService {
         int weakCount = 0;
 
         for (PasswordEntry entry : entries) {
-
-            String decrypted;
-
-            try {
-                decrypted = EncryptionUtil.decrypt(
-                        entry.getEncryptedPassword());
-            } catch (Exception e) {
-                throw new RuntimeException("Decryption failed");
-            }
-
-            String strength =
-                    PasswordStrengthUtil.checkStrength(decrypted);
-
-            if (strength.equals("Weak")) {
+            if (entry.getEncryptedPassword().length() < 8) {
                 weakCount++;
             }
         }
 
         return "Weak passwords found: " + weakCount;
     }
-
 }

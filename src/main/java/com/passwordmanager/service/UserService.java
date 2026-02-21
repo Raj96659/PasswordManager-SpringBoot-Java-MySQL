@@ -6,6 +6,7 @@ import com.passwordmanager.repository.UserRepository;
 import com.passwordmanager.repository.VerificationCodeRepository;
 import com.passwordmanager.util.JwtUtil;
 import com.passwordmanager.util.OtpUtil;
+import com.passwordmanager.util.SaltUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -30,18 +31,17 @@ public class UserService {
     // REGISTER
     public User register(User user) {
 
-        // Check if username already exists
-        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-            throw new RuntimeException("Username already exists");
-        }
-
-        // Encode master password before saving
         user.setMasterPasswordHash(
                 encoder.encode(user.getMasterPasswordHash())
         );
 
+        user.setEncryptionSalt(
+                SaltUtil.generateSalt()
+        );
+
         return userRepository.save(user);
     }
+
 
     // LOGIN
     public String login(String username, String password) {

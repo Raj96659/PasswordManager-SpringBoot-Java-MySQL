@@ -34,11 +34,12 @@ public class PasswordController {
 
     @PostMapping("/add")
     public PasswordEntryResponse addPassword(
+            @RequestParam String masterPassword,
             HttpServletRequest request,
             @RequestBody PasswordEntryRequest body) {
 
         String username = getUsername(request);
-        return service.addPassword(username, body);
+        return service.addPassword(username, masterPassword, body);
     }
 
     @GetMapping("/all")
