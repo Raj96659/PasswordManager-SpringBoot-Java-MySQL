@@ -9,7 +9,15 @@ public class PasswordGenerateRequest {
     private boolean useSpecial;
     private boolean excludeSimilar;
     private int count;
+    private String username;
 
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
     public PasswordGenerateRequest() {
     }

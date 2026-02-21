@@ -3,11 +3,12 @@ package com.passwordmanager.controller;
 import com.passwordmanager.dto.PasswordEntryRequest;
 import com.passwordmanager.dto.PasswordGenerateRequest;
 import com.passwordmanager.dto.PasswordGenerateResponse;
+import com.passwordmanager.service.PasswordEntryService;
 import com.passwordmanager.service.PasswordUtilityService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.passwordmanager.util.PasswordGeneratorUtil;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -16,9 +17,13 @@ import java.util.List;
 public class PasswordUtilityController {
 
     private final PasswordUtilityService service;
+    private final PasswordUtilityService passwordUtilityService;
+    private final PasswordEntryService passwordEntryService;
 
-    public PasswordUtilityController(PasswordUtilityService service) {
+    public PasswordUtilityController(PasswordUtilityService service, PasswordUtilityService passwordUtilityService, PasswordEntryService passwordEntryService) {
         this.service = service;
+        this.passwordUtilityService = passwordUtilityService;
+        this.passwordEntryService = passwordEntryService;
     }
 
     @PostMapping("/generate")

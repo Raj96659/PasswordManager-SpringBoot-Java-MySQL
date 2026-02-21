@@ -8,7 +8,7 @@ import com.passwordmanager.entity.User;
 import com.passwordmanager.repository.PasswordEntryRepository;
 import com.passwordmanager.repository.UserRepository;
 import com.passwordmanager.util.*;
-
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -571,6 +571,53 @@ public class PasswordEntryService {
         alerts.put("reused", reused);
 
         return alerts;
+    }
+
+    public List<PasswordEntryResponse> getFavoritePasswords(String username) {
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<PasswordEntry> favorites =
+                passwordEntryRepository.findByUserAndFavoriteTrue(user);
+
+        List<PasswordEntryResponse> responses = new ArrayList<>();
+
+        for (PasswordEntry entry : favorites) {
+            responses.add(mapToResponse(entry));
+        }
+
+        return responses;
+    }
+
+
+
+    public List<PasswordEntryResponse> getSorted(
+            String username,
+            String sortBy) {
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // ✅ Allow only safe sortable fields
+        if (!List.of("accountName", "createdAt", "category")
+                .contains(sortBy)) {
+            throw new RuntimeException("Invalid sort field");
+        }
+
+        List<PasswordEntry> entries =
+                passwordEntryRepository.findByUser(
+                        user,
+                        Sort.by(Sort.Direction.ASC, sortBy)
+                );
+
+        List<PasswordEntryResponse> responses = new ArrayList<>();
+
+        for (PasswordEntry entry : entries) {
+            responses.add(mapToResponse(entry));
+        }
+
+        return responses;
     }
 
 

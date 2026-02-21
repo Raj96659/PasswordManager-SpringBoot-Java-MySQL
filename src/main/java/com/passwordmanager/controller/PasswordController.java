@@ -201,7 +201,7 @@ public class PasswordController {
 
         String username = authentication.getName();
 
-        return passwordEntryService
+        return service
                 .getSecurityAlerts(username, masterPassword);
     }
 

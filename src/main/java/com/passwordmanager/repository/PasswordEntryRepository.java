@@ -2,6 +2,7 @@ package com.passwordmanager.repository;
 
 import com.passwordmanager.entity.PasswordEntry;
 import com.passwordmanager.entity.User;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 
@@ -11,6 +12,8 @@ public interface PasswordEntryRepository
         extends JpaRepository<PasswordEntry, Long> {
 
     List<PasswordEntry> findByUser(User user);
+
+    List<PasswordEntry> findByUser(User user, Sort sort);
 
     List<PasswordEntry> findByUserAndAccountNameContaining(
             User user,
