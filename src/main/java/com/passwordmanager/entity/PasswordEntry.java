@@ -13,6 +13,9 @@ public class PasswordEntry {
     private String accountName;
     private String website;
     private String username;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
 
     @Column(length = 1000)
     private String encryptedPassword;
@@ -20,8 +23,6 @@ public class PasswordEntry {
     private String category;
     private boolean favorite;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

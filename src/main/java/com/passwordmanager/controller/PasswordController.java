@@ -86,4 +86,41 @@ public class PasswordController {
         String username = getUsername(request);
         return service.checkWeakPasswords(username);
     }
+
+
+    @GetMapping("/backup/export")
+    public String exportVault(
+            @RequestParam String masterPassword) {
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        String username = authentication.getName();
+
+        return service.exportVault(username, masterPassword);
+    }
+
+    @PostMapping("/backup/import")
+    public String importVault(
+            @RequestParam String masterPassword,
+            @RequestBody String encryptedData) {
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        String username = authentication.getName();
+
+        return service.importVault(
+                username,
+                masterPassword,
+                encryptedData);
+    }
 }
