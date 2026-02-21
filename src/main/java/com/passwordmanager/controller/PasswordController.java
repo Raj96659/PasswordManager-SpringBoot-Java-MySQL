@@ -39,4 +39,20 @@ public class PasswordController {
 
         return service.viewPassword(id, masterPassword, username);
     }
+
+    @PutMapping("/favorite/{id}")
+    public String toggleFavorite(
+            @PathVariable Long id,
+            @RequestParam String username) {
+
+        return service.toggleFavorite(id, username);
+    }
+
+    @GetMapping("/search")
+    public List<PasswordEntryResponse> search(
+            @RequestParam String username,
+            @RequestParam String keyword) {
+
+        return service.search(username, keyword);
+    }
 }

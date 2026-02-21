@@ -1,11 +1,14 @@
 package com.passwordmanager.service;
 
-import com.passwordmanager.dto.*;
+import com.passwordmanager.dto.PasswordEntryRequest;
+import com.passwordmanager.dto.PasswordEntryResponse;
+import com.passwordmanager.dto.PasswordViewResponse;
 import com.passwordmanager.entity.PasswordEntry;
 import com.passwordmanager.entity.User;
 import com.passwordmanager.repository.PasswordEntryRepository;
 import com.passwordmanager.repository.UserRepository;
 import com.passwordmanager.util.EncryptionUtil;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -17,16 +20,21 @@ public class PasswordEntryService {
 
     private final PasswordEntryRepository passwordEntryRepository;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public PasswordEntryService(
             PasswordEntryRepository passwordEntryRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder) {
 
         this.passwordEntryRepository = passwordEntryRepository;
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    // Add password
+    // ==========================
+    // Add Password
+    // ==========================
     public PasswordEntryResponse addPassword(
             String username,
             PasswordEntryRequest request) {
@@ -54,19 +62,12 @@ public class PasswordEntryService {
 
         PasswordEntry saved = passwordEntryRepository.save(entry);
 
-        PasswordEntryResponse response = new PasswordEntryResponse();
-        response.setId(saved.getId());
-        response.setAccountName(saved.getAccountName());
-        response.setWebsite(saved.getWebsite());
-        response.setUsername(saved.getUsername());
-        response.setCategory(saved.getCategory());
-        response.setFavorite(saved.isFavorite());
-        response.setCreatedAt(saved.getCreatedAt());
-
-        return response;
+        return mapToResponse(saved);
     }
 
-    // View all passwords
+    // ==========================
+    // Get All Passwords
+    // ==========================
     public List<PasswordEntryResponse> getAllPasswords(String username) {
 
         User user = userRepository.findByUsername(username)
@@ -78,24 +79,15 @@ public class PasswordEntryService {
         List<PasswordEntryResponse> responses = new ArrayList<>();
 
         for (PasswordEntry entry : entries) {
-            PasswordEntryResponse response =
-                    new PasswordEntryResponse();
-
-            response.setId(entry.getId());
-            response.setAccountName(entry.getAccountName());
-            response.setWebsite(entry.getWebsite());
-            response.setUsername(entry.getUsername());
-            response.setCategory(entry.getCategory());
-            response.setFavorite(entry.isFavorite());
-            response.setCreatedAt(entry.getCreatedAt());
-
-            responses.add(response);
+            responses.add(mapToResponse(entry));
         }
 
         return responses;
     }
 
-    // View decrypted password
+    // ==========================
+    // View Decrypted Password
+    // ==========================
     public PasswordViewResponse viewPassword(
             Long id,
             String masterPassword,
@@ -104,26 +96,92 @@ public class PasswordEntryService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        PasswordEntry entry =
-                passwordEntryRepository.findById(id)
-                        .orElseThrow(() ->
-                                new RuntimeException("Entry not found"));
+        // Verify master password
+        if (!passwordEncoder.matches(masterPassword, user.getMasterPasswordHash())) {
+            throw new RuntimeException("Master password incorrect");
+        }
+
+        PasswordEntry entry = passwordEntryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Entry not found"));
+
+        // Ensure entry belongs to user
+        if (!entry.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("Access denied");
+        }
 
         String decrypted;
-
         try {
             decrypted = EncryptionUtil.decrypt(entry.getEncryptedPassword());
         } catch (Exception e) {
             throw new RuntimeException("Decryption failed");
         }
 
-        PasswordViewResponse response =
-                new PasswordViewResponse();
-
+        PasswordViewResponse response = new PasswordViewResponse();
         response.setAccountName(entry.getAccountName());
         response.setUsername(entry.getUsername());
         response.setDecryptedPassword(decrypted);
 
         return response;
+    }
+
+    // ==========================
+    // Toggle Favorite
+    // ==========================
+    public String toggleFavorite(Long id, String username) {
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        PasswordEntry entry = passwordEntryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Entry not found"));
+
+        if (!entry.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("Access denied");
+        }
+
+        entry.setFavorite(!entry.isFavorite());
+        passwordEntryRepository.save(entry);
+
+        return "Favorite status updated";
+    }
+
+    // ==========================
+    // Helper: Map Entity to Response
+    // ==========================
+    private PasswordEntryResponse mapToResponse(PasswordEntry entry) {
+
+        PasswordEntryResponse response = new PasswordEntryResponse();
+        response.setId(entry.getId());
+        response.setAccountName(entry.getAccountName());
+        response.setWebsite(entry.getWebsite());
+        response.setUsername(entry.getUsername());
+        response.setCategory(entry.getCategory());
+        response.setFavorite(entry.isFavorite());
+        response.setCreatedAt(entry.getCreatedAt());
+
+        return response;
+    }
+
+    // ==========================
+// Search Passwords
+// ==========================
+    public List<PasswordEntryResponse> search(
+            String username,
+            String keyword) {
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<PasswordEntry> entries =
+                passwordEntryRepository
+                        .findByUserAndAccountNameContaining(user, keyword);
+
+        List<PasswordEntryResponse> responses = new ArrayList<>();
+
+        for (PasswordEntry entry : entries) {
+            responses.add(mapToResponse(entry));
+        }
+
+        return responses;
     }
 }

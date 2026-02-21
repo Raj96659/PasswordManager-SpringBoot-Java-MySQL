@@ -10,4 +10,11 @@ public interface PasswordEntryRepository
         extends JpaRepository<PasswordEntry, Long> {
 
     List<PasswordEntry> findByUser(User user);
+
+    List<PasswordEntry> findByUserAndAccountNameContaining(
+            User user,
+            String accountName);
+
 }
+
+
