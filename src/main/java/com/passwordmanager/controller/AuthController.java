@@ -31,21 +31,17 @@ public class AuthController {
     }
 
 
+
     @PostMapping("/register")
-    public String register(@RequestBody RegisterRequest request) {
-        return userService.register(request);
+    public Map<String, String> register(@RequestBody RegisterRequest request) {
+
+        String message = userService.register(request);
+
+        return Map.of("message", message);
     }
 
 
-//    @PostMapping("/login")
-//    public Map<String, String> login(@RequestBody LoginRequest request) {
-//
-//        String token = userService.login(
-//                request.getUsername(),
-//                request.getMasterPassword());
-//
-//        return Map.of("token", token);
-//    }
+
 
     @PostMapping("/login")
     public Map<String, String> login(@RequestBody LoginRequest request) {
@@ -118,27 +114,7 @@ public class AuthController {
         return userService.updateProfile(username, req);
     }
 
-//    @GetMapping("/security-questions")
-//    public List<String> getQuestions() {
-//
-//        Authentication authentication =
-//                SecurityContextHolder.getContext().getAuthentication();
-//
-//        if (authentication == null || !authentication.isAuthenticated()) {
-//            throw new RuntimeException("Unauthorized");
-//        }
-//
-//        String username = authentication.getName();
-//
-//        User user = userRepository.findByUsername(username)
-//                .orElseThrow(() -> new RuntimeException("User not found"));
-//
-//        return securityQuestionRepository
-//                .findByUser(user)
-//                .stream()
-//                .map(SecurityQuestion::getQuestion)
-//                .toList();
-//    }
+
 
     @GetMapping("/recover/questions")
     public List<String> getQuestionsForRecovery(
@@ -154,7 +130,7 @@ public class AuthController {
                 .toList();
     }
 
-    @PostMapping("/recover")
+    @PostMapping("/recover-master-password")
     public String recoverMasterPassword(
             @RequestBody RecoverMasterPasswordRequest request) {
 

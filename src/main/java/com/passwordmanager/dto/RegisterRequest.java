@@ -11,11 +11,9 @@ public class RegisterRequest {
     private String phone;
     private List<SecurityQuestionDTO> securityQuestions;
 
-    // Default constructor
     public RegisterRequest() {
     }
 
-    // All-args constructor
     public RegisterRequest(String email,
                            String username,
                            String password,
@@ -30,7 +28,7 @@ public class RegisterRequest {
         this.securityQuestions = securityQuestions;
     }
 
-    // Getters and Setters
+    // getters and setters
 
     public String getEmail() {
         return email;

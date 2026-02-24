@@ -3,6 +3,7 @@ package com.passwordmanager.controller;
 import com.passwordmanager.dto.*;
 import com.passwordmanager.service.PasswordEntryService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -224,6 +225,18 @@ public class PasswordController {
                 masterPassword,
                 body
         );
+    }
+
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> deletePassword(
+            @PathVariable Long id,
+            HttpServletRequest request) {
+
+        String username = getUsername(request);
+        service.deletePassword(id, username);
+
+        return ResponseEntity.ok().build();
     }
 
 }

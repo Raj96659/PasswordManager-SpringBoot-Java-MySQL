@@ -10,4 +10,6 @@ public interface SecurityQuestionRepository
         extends JpaRepository<SecurityQuestion, Long> {
 
     List<SecurityQuestion> findByUser(User user);
+
+    void deleteByUser(User user);
 }

@@ -688,5 +688,17 @@ public class PasswordEntryService {
         return mapToResponse(entry);
     }
 
+    public void deletePassword(Long id, String username) {
+
+        PasswordEntry entry = passwordEntryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Password not found"));
+
+        if (!entry.getUser().getUsername().equals(username)) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        passwordEntryRepository.delete(entry);
+    }
+
 
 }
