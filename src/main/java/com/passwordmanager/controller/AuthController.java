@@ -1,17 +1,17 @@
 package com.passwordmanager.controller;
 
-import com.passwordmanager.dto.ChangeMasterPasswordRequest;
-import com.passwordmanager.dto.LoginRequest;
-import com.passwordmanager.dto.RegisterRequest;
-import com.passwordmanager.dto.UpdateProfileRequest;
+import com.passwordmanager.dto.*;
 import com.passwordmanager.entity.SecurityQuestion;
 import com.passwordmanager.entity.User;
 import com.passwordmanager.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
+
 import com.passwordmanager.repository.SecurityQuestionRepository;
 import com.passwordmanager.repository.UserRepository;
 
@@ -30,20 +30,26 @@ public class AuthController {
         this.securityQuestionRepository = securityQuestionRepository;
     }
 
-    // PUBLIC
-//    @PostMapping("/register")
-//    public User register(@RequestBody User user) {
-//        return userService.register(user);
-//    }
 
     @PostMapping("/register")
     public String register(@RequestBody RegisterRequest request) {
         return userService.register(request);
     }
 
-    // PUBLIC
+
+//    @PostMapping("/login")
+//    public Map<String, String> login(@RequestBody LoginRequest request) {
+//
+//        String token = userService.login(
+//                request.getUsername(),
+//                request.getMasterPassword());
+//
+//        return Map.of("token", token);
+//    }
+
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequest request) {
+    public Map<String, String> login(@RequestBody LoginRequest request) {
+
         return userService.login(
                 request.getUsername(),
                 request.getMasterPassword());
@@ -51,34 +57,43 @@ public class AuthController {
 
     // PUBLIC (before token issued if 2FA enabled)
     @PostMapping("/verify-otp")
-    public String verifyOtp(
+    public Map<String, String> verifyOtp(
             @RequestParam String username,
             @RequestParam String otp) {
 
         return userService.verifyOtp(username, otp);
     }
 
-    // 🔐 PROTECTED (requires JWT)
+
+
+    @PreAuthorize("hasRole('USER')")
     @PutMapping("/2fa")
-    public String toggle2FA(HttpServletRequest request) {
+    public String toggle2FA() {
 
-        String username =
-                (String) request.getAttribute("username");
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
 
-        if (username == null) {
+        if (authentication == null || !authentication.isAuthenticated()) {
             throw new RuntimeException("Unauthorized");
         }
+
+        String username = authentication.getName();
 
         return userService.toggle2FA(username);
     }
 
     @PutMapping("/change-master-password")
     public String changeMasterPassword(
-            HttpServletRequest request,
             @RequestBody ChangeMasterPasswordRequest req) {
 
-        String username =
-                (String) request.getAttribute("username");
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        String username = authentication.getName();
 
         return userService.changeMasterPassword(
                 username,
@@ -103,17 +118,31 @@ public class AuthController {
         return userService.updateProfile(username, req);
     }
 
-    @GetMapping("/security-questions")
-    public List<String> getQuestions() {
+//    @GetMapping("/security-questions")
+//    public List<String> getQuestions() {
+//
+//        Authentication authentication =
+//                SecurityContextHolder.getContext().getAuthentication();
+//
+//        if (authentication == null || !authentication.isAuthenticated()) {
+//            throw new RuntimeException("Unauthorized");
+//        }
+//
+//        String username = authentication.getName();
+//
+//        User user = userRepository.findByUsername(username)
+//                .orElseThrow(() -> new RuntimeException("User not found"));
+//
+//        return securityQuestionRepository
+//                .findByUser(user)
+//                .stream()
+//                .map(SecurityQuestion::getQuestion)
+//                .toList();
+//    }
 
-        Authentication authentication =
-                SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new RuntimeException("Unauthorized");
-        }
-
-        String username = authentication.getName();
+    @GetMapping("/recover/questions")
+    public List<String> getQuestionsForRecovery(
+            @RequestParam String username) {
 
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -123,6 +152,17 @@ public class AuthController {
                 .stream()
                 .map(SecurityQuestion::getQuestion)
                 .toList();
+    }
+
+    @PostMapping("/recover")
+    public String recoverMasterPassword(
+            @RequestBody RecoverMasterPasswordRequest request) {
+
+        return userService.recoverMasterPassword(
+                request.getUsername(),
+                request.getAnswers(),
+                request.getNewPassword()
+        );
     }
 
     @PostMapping("/logout")

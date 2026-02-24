@@ -13,6 +13,8 @@ public class SecurityQuestion {
 
     private String answerHash;
 
+    private String Answer;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -61,5 +63,13 @@ public class SecurityQuestion {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public String getAnswer() {
+        return Answer;
+    }
+
+    public void setAnswer(String answer) {
+        Answer = answer;
     }
 }

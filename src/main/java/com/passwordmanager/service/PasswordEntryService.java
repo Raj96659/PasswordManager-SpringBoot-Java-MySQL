@@ -412,10 +412,10 @@ public class PasswordEntryService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (!passwordEncoder.matches(masterPassword,
-                user.getMasterPasswordHash())) {
-            throw new RuntimeException("Master password incorrect");
-        }
+//        if (!passwordEncoder.matches(masterPassword,
+//                user.getMasterPasswordHash())) {
+//            throw new RuntimeException("Master password incorrect");
+//        }
 
         SecretKeySpec key =
                 KeyDerivationUtil.deriveKey(
@@ -520,7 +520,7 @@ public class PasswordEntryService {
         return responses;
     }
 
-    public Map<String, Integer> getSecurityAlerts(
+    public SecurityAuditResponse getSecurityAudit(
             String username,
             String masterPassword) {
 
@@ -529,7 +529,6 @@ public class PasswordEntryService {
 
         if (!passwordEncoder.matches(masterPassword,
                 user.getMasterPasswordHash())) {
-
             throw new RuntimeException("Master password incorrect");
         }
 
@@ -542,8 +541,9 @@ public class PasswordEntryService {
         List<PasswordEntry> entries =
                 passwordEntryRepository.findByUser(user);
 
-        int weak = 0;
-        Map<String, Integer> reusedMap = new HashMap<>();
+        List<String> weakAccounts = new ArrayList<>();
+        List<String> oldAccounts = new ArrayList<>();
+        Map<String, List<String>> reusedMap = new HashMap<>();
 
         for (PasswordEntry entry : entries) {
 
@@ -554,23 +554,48 @@ public class PasswordEntryService {
             String strength =
                     PasswordStrengthUtil.checkStrength(decrypted);
 
-            if (strength.equals("Weak")) weak++;
+            if (strength.equals("Weak")) {
+                weakAccounts.add(entry.getAccountName());
+            }
 
-            reusedMap.put(
-                    decrypted,
-                    reusedMap.getOrDefault(decrypted, 0) + 1);
+            if (entry.getUpdatedAt() != null &&
+                    entry.getUpdatedAt().isBefore(
+                            LocalDateTime.now().minusDays(90))) {
+
+                oldAccounts.add(entry.getAccountName());
+            }
+
+            reusedMap.computeIfAbsent(decrypted, k -> new ArrayList<>())
+                    .add(entry.getAccountName());
         }
 
-        int reused = 0;
-        for (int count : reusedMap.values()) {
-            if (count > 1) reused++;
+        List<String> reusedAccounts = new ArrayList<>();
+
+        for (List<String> list : reusedMap.values()) {
+            if (list.size() > 1) {
+                reusedAccounts.addAll(list);
+            }
         }
 
-        Map<String, Integer> alerts = new HashMap<>();
-        alerts.put("weak", weak);
-        alerts.put("reused", reused);
+        SecurityAuditResponse response = new SecurityAuditResponse();
+        response.setWeakCount(weakAccounts.size());
+        response.setReusedCount(reusedAccounts.size());
+        response.setOldCount(oldAccounts.size());
+        response.setWeakAccounts(weakAccounts);
+        response.setReusedAccounts(reusedAccounts);
+        response.setOldAccounts(oldAccounts);
 
-        return alerts;
+        int score = 100;
+
+        score -= weakAccounts.size() * 5;
+        score -= reusedAccounts.size() * 5;
+        score -= oldAccounts.size() * 3;
+
+        if (score < 0) score = 0;
+
+        response.setSecurityScore(score);
+
+        return response;
     }
 
     public List<PasswordEntryResponse> getFavoritePasswords(String username) {
@@ -618,6 +643,49 @@ public class PasswordEntryService {
         }
 
         return responses;
+    }
+
+    public PasswordEntryResponse updatePassword(
+            Long id,
+            String username,
+            String masterPassword,
+            PasswordEntryRequest request) {
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!passwordEncoder.matches(masterPassword,
+                user.getMasterPasswordHash())) {
+            throw new RuntimeException("Master password incorrect");
+        }
+
+        PasswordEntry entry = passwordEntryRepository
+                .findById(id)
+                .orElseThrow(() -> new RuntimeException("Not found"));
+
+        if (!entry.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        SecretKeySpec key =
+                KeyDerivationUtil.deriveKey(
+                        masterPassword,
+                        user.getEncryptionSalt()
+                );
+
+        entry.setAccountName(request.getAccountName());
+        entry.setWebsite(request.getWebsite());
+        entry.setUsername(request.getUsername());
+        entry.setCategory(request.getCategory());
+        entry.setFavorite(request.isFavorite());
+
+        entry.setEncryptedPassword(
+                EncryptionUtil.encrypt(request.getPassword(), key)
+        );
+
+        passwordEntryRepository.save(entry);
+
+        return mapToResponse(entry);
     }
 
 

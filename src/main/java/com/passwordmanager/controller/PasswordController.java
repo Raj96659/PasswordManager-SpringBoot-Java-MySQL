@@ -3,6 +3,7 @@ package com.passwordmanager.controller;
 import com.passwordmanager.dto.*;
 import com.passwordmanager.service.PasswordEntryService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +14,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/vault")
+@PreAuthorize("hasRole('USER')")
 public class PasswordController {
 
     private final PasswordEntryService service;
@@ -37,7 +39,8 @@ public class PasswordController {
     public PasswordEntryResponse addPassword(
             @RequestParam String masterPassword,
             HttpServletRequest request,
-            @RequestBody PasswordEntryRequest body) {
+            @RequestBody PasswordEntryRequest body
+            ) {
 
         String username = getUsername(request);
         return service.addPassword(username, masterPassword, body);
@@ -125,9 +128,10 @@ public class PasswordController {
                 encryptedData);
     }
 
-    @GetMapping("/dashboard")
+
+    @PostMapping("/dashboard")
     public DashboardResponse dashboard(
-            @RequestParam String masterPassword) {
+            @RequestBody DashboardRequest request) {
 
         Authentication authentication =
                 SecurityContextHolder.getContext().getAuthentication();
@@ -137,6 +141,7 @@ public class PasswordController {
         }
 
         String username = authentication.getName();
+        String masterPassword = request.getMasterPassword();
 
         return service.getDashboard(username, masterPassword);
     }
@@ -188,8 +193,8 @@ public class PasswordController {
         return service.getSorted(username, sortBy);
     }
 
-    @GetMapping("/security-alerts")
-    public Map<String, Integer> alerts(
+    @GetMapping("/audit")
+    public SecurityAuditResponse audit(
             @RequestParam String masterPassword) {
 
         Authentication authentication =
@@ -201,8 +206,24 @@ public class PasswordController {
 
         String username = authentication.getName();
 
-        return service
-                .getSecurityAlerts(username, masterPassword);
+        return service.getSecurityAudit(username, masterPassword);
+    }
+
+    @PutMapping("/update/{id}")
+    public PasswordEntryResponse updatePassword(
+            @PathVariable Long id,
+            @RequestParam String masterPassword,
+            @RequestBody PasswordEntryRequest body,
+            HttpServletRequest request) {
+
+        String username = getUsername(request);
+
+        return service.updatePassword(
+                id,
+                username,
+                masterPassword,
+                body
+        );
     }
 
 }

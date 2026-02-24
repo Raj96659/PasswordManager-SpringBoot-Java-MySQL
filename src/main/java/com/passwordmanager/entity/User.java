@@ -2,6 +2,9 @@ package com.passwordmanager.entity;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
+
 @Entity
 public class User {
 
@@ -20,6 +23,11 @@ public class User {
     private String encryptionSalt;
 
     private boolean twoFactorEnabled;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
+
 
     // Getters and Setters
 
@@ -61,6 +69,41 @@ public class User {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public enum Role {
+        ROLE_USER,
+        ROLE_ADMIN
+    }
+
+    @Column(name = "otp")
+    private String otp;
+
+    @Column(name = "otp_expiry")
+    private LocalDateTime otpExpiry;
+
+        public Role getRole() {
+            return role;
+        }
+
+        public void setRole(Role role) {
+            this.role = role;
+        }
+
+    public String getOtp() {
+        return otp;
+    }
+
+    public void setOtp(String otp) {
+        this.otp = otp;
+    }
+
+    public LocalDateTime getOtpExpiry() {
+        return otpExpiry;
+    }
+
+    public void setOtpExpiry(LocalDateTime otpExpiry) {
+        this.otpExpiry = otpExpiry;
     }
 
 }

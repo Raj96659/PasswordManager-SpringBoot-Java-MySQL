@@ -28,6 +28,8 @@ import com.passwordmanager.dto.UpdateSecurityAnswerRequest;
 
 
 import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.Random;
 
 @Service
 public class UserService {
@@ -75,7 +77,7 @@ public class UserService {
         User user = new User();
         user.setEmail(request.getEmail());
         user.setUsername(request.getUsername());
-        user.setUsername(request.getName());
+        //user.setUsername(request.getName());
         user.setPhone(request.getPhone());
 
         // 🔐 Hash master password
@@ -87,6 +89,8 @@ public class UserService {
         user.setEncryptionSalt(
                 SaltUtil.generateSalt()
         );
+
+        user.setRole(User.Role.ROLE_USER);
 
         userRepository.save(user);
 
@@ -105,67 +109,119 @@ public class UserService {
     }
 
 
-    // LOGIN
-    public String login(String username, String password) {
+//    // LOGIN
+//    public String login(String username, String password) {
+//
+//        User user = userRepository.findByUsername(username)
+//                .orElseThrow(() -> new RuntimeException("User not found"));
+//
+//        if (!encoder.matches(password, user.getMasterPasswordHash())) {
+//            throw new RuntimeException("Invalid password");
+//        }
+//
+//        if (user.isTwoFactorEnabled()) {
+//
+//            // 🔐 Generate OTP
+//            String otp = OtpUtil.generateOtp();
+//
+//            VerificationCode code = new VerificationCode();
+//            code.setCode(otp);
+//            code.setUsed(false);
+//            code.setUser(user);
+//            code.setExpiryTime(LocalDateTime.now().plusMinutes(5));
+//
+//            verificationCodeRepository.save(code);
+//
+//            // Print OTP in terminal (simulation)
+//            System.out.println("OTP for user " + username + " is: " + otp);
+//
+//            return "2FA required";
+//        }
+//
+////        return JwtUtil.generateToken(username);
+//        return JwtUtil.generateToken(username, user.getRole().name());
+//    }
 
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+public Map<String, String> login(String username, String masterPassword) {
 
-        if (!encoder.matches(password, user.getMasterPasswordHash())) {
-            throw new RuntimeException("Invalid password");
-        }
+    User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (user.isTwoFactorEnabled()) {
-
-            // 🔐 Generate OTP
-            String otp = OtpUtil.generateOtp();
-
-            VerificationCode code = new VerificationCode();
-            code.setCode(otp);
-            code.setUsed(false);
-            code.setUser(user);
-            code.setExpiryTime(LocalDateTime.now().plusMinutes(5));
-
-            verificationCodeRepository.save(code);
-
-            // Print OTP in terminal (simulation)
-            System.out.println("OTP for user " + username + " is: " + otp);
-
-            return "2FA required";
-        }
-
-        return JwtUtil.generateToken(username);
+    if (!encoder.matches(masterPassword, user.getMasterPasswordHash())) {
+        throw new RuntimeException("Invalid credentials");
     }
 
+    if (user.isTwoFactorEnabled()) {
+
+        String otp = String.valueOf(new Random().nextInt(900000) + 100000);
+
+//        user.setOtp(otp);
+        user.setOtp(otp);
+        user.setOtpExpiry(LocalDateTime.now().plusMinutes(5));
+        userRepository.save(user);
+
+        System.out.println("Generated OTP for " + username + ": " + otp);
+
+        return Map.of("2fa", "required");
+    }
+
+    String token = JwtUtil.generateToken(username, "ROLE_USER");
+
+    return Map.of("token", token);
+}
 
 
-    public String verifyOtp(String username, String otpInput) {
+
+//    public String verifyOtp(String username, String otpInput) {
+//
+//        User user = userRepository.findByUsername(username)
+//                .orElseThrow(() -> new RuntimeException("User not found"));
+//
+//        VerificationCode code =
+//                verificationCodeRepository
+//                        .findTopByUserAndUsedFalseOrderByExpiryTimeDesc(user)
+//                        .orElseThrow(() ->
+//                                new RuntimeException("No OTP found"));
+//
+//        if (code.isUsed()) {
+//            throw new RuntimeException("OTP already used");
+//        }
+//
+//        if (code.getExpiryTime().isBefore(LocalDateTime.now())) {
+//            throw new RuntimeException("OTP expired");
+//        }
+//
+//        if (!code.getCode().equals(otpInput)) {
+//            throw new RuntimeException("Invalid OTP");
+//        }
+//
+//        code.setUsed(true);
+//        verificationCodeRepository.save(code);
+//
+//        return JwtUtil.generateToken(username, user.getRole().name());
+//    }
+
+    public Map<String, String> verifyOtp(String username, String otp) {
 
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        VerificationCode code =
-                verificationCodeRepository
-                        .findTopByUserAndUsedFalseOrderByExpiryTimeDesc(user)
-                        .orElseThrow(() ->
-                                new RuntimeException("No OTP found"));
-
-        if (code.isUsed()) {
-            throw new RuntimeException("OTP already used");
-        }
-
-        if (code.getExpiryTime().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("OTP expired");
-        }
-
-        if (!code.getCode().equals(otpInput)) {
+        if (!otp.equals(user.getOtp())) {
             throw new RuntimeException("Invalid OTP");
         }
 
-        code.setUsed(true);
-        verificationCodeRepository.save(code);
+        if (user.getOtpExpiry().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("OTP Expired");
+        }
 
-        return JwtUtil.generateToken(username);
+
+        user.setOtp(null);
+        user.setOtpExpiry(null);
+        userRepository.save(user);
+
+        String token = JwtUtil.generateToken(username, "ROLE_USER");
+
+        return Map.of("token", token);
     }
 
     public String toggle2FA(String username) {
@@ -320,6 +376,37 @@ public class UserService {
         securityQuestionRepository.save(q);
 
         return "Security answer updated";
+    }
+
+    public String recoverMasterPassword(
+            String username,
+            List<String> answers,
+            String newPassword) {
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<SecurityQuestion> questions =
+                securityQuestionRepository.findByUser(user);
+
+        if (questions.size() != answers.size()) {
+            throw new RuntimeException("Invalid answers");
+        }
+
+        for (int i = 0; i < questions.size(); i++) {
+            if (!questions.get(i).getAnswer()
+                    .equalsIgnoreCase(answers.get(i))) {
+
+                throw new RuntimeException("Incorrect answers");
+            }
+        }
+
+        user.setMasterPasswordHash(
+                encoder.encode(newPassword));
+
+        userRepository.save(user);
+
+        return "Master password reset successful";
     }
 
 }
