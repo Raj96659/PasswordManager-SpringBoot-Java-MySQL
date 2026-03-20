@@ -14,10 +14,6 @@ This project demonstrates strong security architecture, clean backend design, an
 - [Security Architecture](#-security-architecture)
 - [Tech Stack](#-tech-stack)
 - [System Architecture](#-system-architecture)
-- [Database Design](#-database-design)
-- [API Endpoints Overview](#-api-endpoints-overview)
-- [How to Run](#️-how-to-run)
-- [Security Highlights](#-security-highlights)
 - [Future Improvements](#-future-improvements)
 - [Author](#-author)
 
