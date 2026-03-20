@@ -1,0 +1,46 @@
+<div class="login-wrapper">
+
+  <div class="login-card">
+
+    <div class="avatar">
+      <i class="fa fa-user"></i>
+    </div>
+
+    <h2>Login</h2>
+
+    <form [formGroup]="form" (ngSubmit)="login()">
+
+      <div class="field">
+        <i class="fa fa-user"></i>
+        <input
+          type="text"
+          placeholder="Username"
+          formControlName="username">
+      </div>
+
+      <div class="field">
+        <i class="fa fa-lock"></i>
+        <input
+          [type]="showPassword ? 'text':'password'"
+          placeholder="Password"
+          formControlName="password">
+
+        <i class="fa eye"
+           [ngClass]="showPassword ? 'fa-eye-slash':'fa-eye'"
+           (click)="togglePassword()"></i>
+      </div>
+
+      <div class="links">
+        <a routerLink="/register">Register</a>
+        <a routerLink="/forgot-password">Forgot Password?</a>
+      </div>
+
+      <button class="login-btn">
+        LOGIN
+      </button>
+
+    </form>
+
+  </div>
+
+</div>

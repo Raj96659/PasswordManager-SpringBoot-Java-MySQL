@@ -1,0 +1,246 @@
+/* ================= BACKGROUND ================= */
+
+.dashboard-wrapper {
+  min-height: 100vh;
+
+  background: radial-gradient(circle at 20% 20%, #0f766e, transparent 40%),
+              radial-gradient(circle at 80% 80%, #022c22, transparent 40%),
+              linear-gradient(135deg, #020617, #000000);
+
+  color: #e2e8f0;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+
+/* ================= CARDS ================= */
+
+.stat-card,
+.last-card,
+.small-security {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 18px;
+  border-radius: 14px;
+
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(16px);
+
+  border: 1px solid rgba(255,255,255,0.08);
+
+  box-shadow: 0 0 25px rgba(0,0,0,0.6);
+}
+
+
+/* ================= STAT ICONS ================= */
+
+.stat-icon {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 20px;
+}
+
+/* Unique teal theme */
+
+.stat-icon.blue {
+  border: 3px solid #14b8a6;
+  box-shadow: 0 0 20px rgba(20,184,166,0.6);
+}
+
+.stat-icon.green {
+  border: 3px solid #22c55e;
+  box-shadow: 0 0 20px rgba(34,197,94,0.6);
+}
+
+.stat-icon.red {
+  border: 3px solid #ef4444;
+  box-shadow: 0 0 20px rgba(239,68,68,0.6);
+}
+
+.stat-icon.purple {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+
+  border: 3px solid #14b8a6;
+  box-shadow: 0 0 12px rgba(20,184,166,0.6);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+/* ================= LAST CARD ================= */
+
+.last-card {
+  margin-top: 15px;
+}
+
+.last-header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.last-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+
+  background: linear-gradient(135deg, #14b8a6, #0f766e);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+/* ================= FORM ================= */
+
+input,
+textarea,
+select {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #e2e8f0;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #94a3b8;
+}
+
+
+/* ================= SELECT ================= */
+
+.custom-select {
+  background: rgba(255,255,255,0.05);
+  color: #e2e8f0;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.custom-select option {
+  background: #020617;
+  color: #e2e8f0;
+}
+
+
+/* ================= FAVORITE ================= */
+
+.fav-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.fav-check input {
+  width: 18px;
+  height: 18px;
+  accent-color: #14b8a6;
+  cursor: pointer;
+}
+
+.fav-check label {
+  color: #cbd5e1;
+  cursor: pointer;
+}
+
+
+/* ================= BUTTON ================= */
+
+button {
+  background: linear-gradient(135deg, #14b8a6, #0f766e);
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-weight: 600;
+  padding: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  box-shadow: 0 0 15px rgba(20,184,166,0.7);
+  transform: translateY(-1px);
+}
+
+
+/* ================= PROGRESS ================= */
+
+.progress-bg {
+  width: 100%;
+  height: 6px;
+  border-radius: 10px;
+
+  background: rgba(255,255,255,0.15);
+  margin-top: 5px;
+
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 10px;
+
+  background: linear-gradient(90deg, #14b8a6, #22c55e);
+
+  transition: width 0.4s ease;
+}
+
+
+/* ================= TEXT ================= */
+
+.small-security .title {
+  font-size: 14px;
+  color: #94a3b8;
+}
+
+.score {
+  font-weight: 600;
+  color: #14b8a6;
+  font-size: 13px;
+}
+
+.account-item {
+  display: flex;
+  flex-wrap: wrap;   /* ✅ FIX */
+  gap: 10px;
+}
+
+.account-item span {
+  word-break: break-word;   /* ✅ IMPORTANT */
+}
+
+.last-card {
+  overflow: hidden;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+}
+
+.field label {
+  color: #94a3b8;
+}
+
+.field span {
+  font-weight: 500;
+}
+
+.account-details {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 columns */
+  gap: 10px;
+}

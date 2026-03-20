@@ -1,0 +1,146 @@
+<div class="auth-page">
+
+  <div class="auth-card">
+
+    <div class="user-icon">
+      <i class="fa fa-user-plus"></i>
+    </div>
+
+    <h2>Create Account</h2>
+
+    <!-- Step Indicator -->
+    <div class="steps">
+
+      <div class="step"
+           [class.active]="step === 1">
+        1
+        <span>Account</span>
+      </div>
+
+      <div class="line"></div>
+
+      <div class="step"
+           [class.active]="step === 2">
+        2
+        <span>Security</span>
+      </div>
+
+    </div>
+
+    <form [formGroup]="form">
+
+      <!-- ================= STEP 1 ================= -->
+
+      <div *ngIf="step === 1">
+
+        <div class="input-group">
+          <input placeholder="Username"
+                 formControlName="username">
+        </div>
+
+        <div class="input-group">
+          <input placeholder="Email"
+                 formControlName="email">
+        </div>
+
+        <div class="input-group">
+          <input placeholder="Phone"
+                 formControlName="phone">
+        </div>
+
+        <div class="input-group">
+
+          <input
+            [type]="showPassword ? 'text':'password'"
+            placeholder="Password"
+            formControlName="password"
+            (input)="checkStrength()">
+
+          <span class="toggle"
+                (click)="togglePassword()">
+            <i class="fa"
+               [class.fa-eye]="!showPassword"
+               [class.fa-eye-slash]="showPassword"></i>
+          </span>
+        </div>
+
+        <!-- Strength -->
+        <div class="strength">
+          <div class="bar">
+            <div class="fill"
+                 [style.width.%]="strengthScore"
+                 [style.background]="strengthColor">
+            </div>
+          </div>
+          <small>{{strengthLabel}}</small>
+        </div>
+
+        <button type="button"
+                class="btn-gen"
+                (click)="generatePassword()">
+          Generate Strong Password
+        </button>
+
+      </div>
+
+
+      <!-- ================= STEP 2 ================= -->
+
+      <div *ngIf="step === 2">
+
+        <div class="questions">
+
+          <h4>Security Questions</h4>
+
+          <div *ngFor="let q of questions">
+
+            <label>{{q.question}}</label>
+
+            <input type="text"
+                   [(ngModel)]="q.answer"
+                   name="answer{{q.id}}"
+                   placeholder="Your Answer">
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- Buttons -->
+
+      <div class="buttons">
+
+        <button type="button"
+                *ngIf="step === 2"
+                class="btn-back"
+                (click)="step = 1">
+          Back
+        </button>
+
+        <button type="button"
+                *ngIf="step === 1"
+                class="btn-next"
+                (click)="nextStep()">
+          Next
+        </button>
+
+        <button type="button"
+                *ngIf="step === 2"
+                class="btn-login"
+                (click)="register()">
+          Register
+        </button>
+
+      </div>
+
+      <div class="links">
+        <a routerLink="/login">Already have account?</a>
+      </div>
+
+    </form>
+
+  </div>
+
+</div>

@@ -1,0 +1,165 @@
+
+<div class="container mt-4">
+
+  <div class="glass">
+
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+      <h3>Vault</h3>
+
+      <div class="d-flex gap-2">
+
+        <input class="form-control search-box"
+               placeholder="Search accounts..."
+               [(ngModel)]="searchText"
+               (input)="searchVault()">
+
+
+
+      </div>
+
+    </div>
+
+    <!-- EDIT / ADD MODAL -->
+    <div *ngIf="showForm" class="modal-overlay">
+
+      <div class="modal-card">
+
+        <h4 class="text-center mb-3">
+          {{ editMode ? 'Edit Account' : 'Add Account' }}
+        </h4>
+
+        <input class="form-control mb-2"
+               placeholder="Account Name"
+               [(ngModel)]="form.accountName">
+
+        <input class="form-control mb-2"
+               placeholder="Website"
+               [(ngModel)]="form.website">
+
+        <input class="form-control mb-2"
+               placeholder="Username"
+               [(ngModel)]="form.username">
+
+        <input class="form-control mb-2"
+               placeholder="Password"
+               [(ngModel)]="form.password">
+
+        <select class="form-control mb-2"
+                [(ngModel)]="form.category">
+
+          <option value="">Select Category</option>
+          <option>Social</option>
+          <option>Banking</option>
+          <option>Work</option>
+          <option>Other</option>
+
+        </select>
+
+        <textarea class="form-control mb-2"
+                  placeholder="Notes"
+                  [(ngModel)]="form.notes">
+    </textarea>
+
+        <div class="fav-check mb-3">
+
+          <input type="checkbox"
+                 [(ngModel)]="form.favorite">
+
+          <label>⭐ Mark as Favorite</label>
+
+        </div>
+
+        <div class="d-flex gap-2">
+
+          <button class="btn btn-save w-50"
+                  (click)="save()">
+            Save
+          </button>
+
+          <button class="btn btn-cancel w-50"
+                  (click)="showForm=false">
+            Cancel
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+    <!-- GRID -->
+    <div class="row g-4">
+
+      <div class="col-md-4"
+           *ngFor="let v of filteredVaults">
+
+        <div class="vault-card">
+
+          <!-- HEADER -->
+          <div class="vault-header">
+
+            <div class="vault-icon">
+              <i class="fa fa-globe"></i>
+            </div>
+
+            <div class="flex-grow-1">
+
+              <h5>{{v.accountName}}</h5>
+              <small>{{v.website}}</small>
+
+            </div>
+
+            <span *ngIf="v.favorite" class="fav-star">⭐</span>
+
+          </div>
+
+          <hr>
+
+          <!-- BODY -->
+          <p><strong>Username:</strong> {{v.username}}</p>
+
+          <p>
+            <strong>Password:</strong>
+
+            <span *ngIf="!v.show">••••••••</span>
+            <span *ngIf="v.show">{{v.password}}</span>
+
+            <i class="fa"
+               [ngClass]="v.show ? 'fa-eye-slash':'fa-eye'"
+               (click)="togglePassword(v)">
+            </i>
+
+          </p>
+
+          <p>
+            <strong>Category:</strong>
+            <span class="badge">{{v.category}}</span>
+          </p>
+
+          <p class="notes">{{v.notes || '—'}}</p>
+
+          <!-- ACTIONS -->
+          <div class="btn-row">
+
+            <button class="btn btn-edit"
+                    (click)="openEdit(v)">
+              Edit
+            </button>
+
+            <button class="btn btn-delete"
+                    (click)="delete(v.id)">
+              Delete
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

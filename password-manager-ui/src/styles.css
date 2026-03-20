@@ -1,0 +1,107 @@
+/* Background */
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background: radial-gradient(circle at 20% 20%, #1e3a8a, #020617 70%);
+  color: #e2e8f0;
+}
+.layout-content {
+  padding: 10px 20px;
+}
+
+/* Glass Card */
+
+.glass {
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(20px);
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.18);
+  padding: 22px;
+}
+
+
+/* Headings */
+
+h3, h4, h5 {
+  color: #f1f5f9;
+  font-weight: 600;
+}
+
+
+/* Inputs */
+
+input, select, textarea {
+  background: rgba(255,255,255,0.08) !important;
+  border: 1px solid rgba(255,255,255,0.2) !important;
+  color: #f8fafc !important;
+  border-radius: 10px !important;
+  padding: 10px !important;
+}
+
+
+/* Placeholder */
+
+input::placeholder,
+textarea::placeholder {
+  color: #cbd5e1 !important;
+  opacity: 1;
+}
+
+
+/* Dropdown text */
+
+select option {
+  color: black;
+}
+
+
+/* Buttons */
+
+.btn-primary {
+  background: linear-gradient(135deg,#6366f1,#8b5cf6);
+  border: none;
+  border-radius: 10px;
+}
+
+
+/* Labels */
+
+label {
+  color: #cbd5e1;
+}
+
+/* SweetAlert Dark Theme */
+
+.swal2-popup {
+  background: rgba(15,23,42,0.95) !important;
+  backdrop-filter: blur(20px);
+  border-radius: 16px !important;
+  border: 1px solid rgba(255,255,255,0.15) !important;
+  color: #e2e8f0 !important;
+  box-shadow: 0 0 30px rgba(99,102,241,0.4);
+}
+
+
+.swal2-title {
+  color: #f1f5f9 !important;
+}
+
+
+.swal2-confirm {
+  background: linear-gradient(135deg,#6366f1,#8b5cf6) !important;
+  border-radius: 10px !important;
+  border: none !important;
+}
+
+
+.swal2-cancel {
+  background: rgba(255,255,255,0.15) !important;
+  color: #e2e8f0 !important;
+  border-radius: 10px !important;
+}
+
+
+.swal2-icon {
+  border-color: #6366f1 !important;
+}

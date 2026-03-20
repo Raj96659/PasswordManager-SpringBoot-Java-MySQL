@@ -1,0 +1,134 @@
+
+
+
+  <div class="container">
+
+<div class="container mt-4">
+
+  <div class="glass p-4">
+
+    <h3 class="mb-4">Profile Settings</h3>
+
+    <div class="row g-4">
+
+      <!-- Profile Info -->
+      <div class="col-lg-6">
+
+        <div class="glass-card">
+
+          <h5 class="mb-3">Profile Info</h5>
+
+          <input class="form-control"
+                 placeholder="Username"
+                 [(ngModel)]="user.username">
+
+          <input class="form-control"
+                 placeholder="Email"
+                 [(ngModel)]="user.email">
+
+          <input class="form-control"
+                 placeholder="Phone"
+                 [(ngModel)]="user.phone">
+
+          <button class="btn btn-gradient w-100 mt-3 btn-primary"
+                  (click)="updateProfile()">
+            Update Profile
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- Security Questions -->
+      <div class="col-lg-6">
+
+        <div class="glass-card">
+
+          <h5 class="mb-3">Security Questions</h5>
+
+          <div *ngFor="let q of questions">
+
+            <label>{{q.question}}</label>
+
+            <input class="form-control"
+                   [(ngModel)]="q.answer">
+
+          </div>
+
+          <button class="btn btn-gradient w-100 mt-3 btn-primary"
+                  (click)="updateQuestions()">
+            Update Questions
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- Change Password -->
+      <div class="col-lg-6">
+
+        <div class="glass-card">
+
+          <h5 class="mb-3">Change Master Password</h5>
+
+          <input type="password"
+                 class="form-control"
+                 placeholder="Current Password"
+                 [(ngModel)]="password.current">
+
+          <input type="password"
+                 class="form-control"
+                 placeholder="New Password"
+                 [(ngModel)]="password.new">
+
+          <input type="password"
+                 class="form-control"
+                 placeholder="Confirm Password"
+                 [(ngModel)]="password.confirm">
+
+          <button class="btn btn-gradient w-100 mt-3 btn-primary"
+                  (click)="changePassword()">
+            Update Password
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- Two Factor -->
+      <div class="col-lg-6">
+
+        <div class="glass-card text-center">
+
+          <h5 class="mb-3">Two Factor Authentication</h5>
+
+          <p>
+            Status:
+            <span
+              [class.text-success]="user.twoFactorEnabled"
+              [class.text-danger]="!user.twoFactorEnabled">
+
+              {{ user.twoFactorEnabled ? 'Enabled' : 'Disabled' }}
+
+            </span>
+          </p>
+
+          <button class="btn btn-gradient btn-primary"
+                  (click)="toggle2FA()">
+
+            {{ user.twoFactorEnabled ? 'Disable 2FA' : 'Enable 2FA' }}
+
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+  </div>
+
+

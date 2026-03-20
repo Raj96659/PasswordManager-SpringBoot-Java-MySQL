@@ -1,0 +1,40 @@
+<nav class="navbar-glass">
+
+  <!-- LEFT LOGO -->
+  <div class="logo" (click)="goDashboard()">
+    🔐 <span>Password Manager</span>
+  </div>
+
+
+  <!-- CENTER MENU -->
+  <div class="nav-links">
+
+    <button (click)="goDashboard()">
+      <i class="fa fa-chart-line"></i>
+      Dashboard
+    </button>
+
+    <button (click)="goVault()">
+      <i class="fa fa-key"></i>
+      Vault
+    </button>
+
+    <button (click)="goProfile()">
+      <i class="fa fa-user"></i>
+      Profile
+    </button>
+
+  </div>
+
+
+  <!-- RIGHT -->
+  <div class="nav-right">
+
+    <button class="logout-btn" (click)="logout()">
+      <i class="fa fa-sign-out-alt"></i>
+      Logout
+    </button>
+
+  </div>
+
+</nav>

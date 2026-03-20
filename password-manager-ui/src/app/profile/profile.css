@@ -1,0 +1,73 @@
+/* ===== PAGE BACKGROUND ===== */
+
+.profile-page {
+  min-height: 100vh;
+  padding: 30px;
+
+  background: radial-gradient(circle at 20% 20%, #0f766e, transparent 40%),
+              radial-gradient(circle at 80% 80%, #022c22, transparent 40%),
+              linear-gradient(135deg, #020617, #000000);
+}
+
+
+/* ===== GLASS CONTAINER ===== */
+
+.glass {
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(18px);
+
+  border-radius: 20px;
+  padding: 30px;
+
+  border: 1px solid rgba(255,255,255,0.08);
+
+  box-shadow: 0 0 40px rgba(20,184,166,0.25); /* teal glow */
+}
+
+
+/* ===== CARD STYLE ===== */
+
+.glass-card {
+  background: rgba(255,255,255,0.04);
+  border-radius: 16px;
+  padding: 20px;
+
+  border: 1px solid rgba(255,255,255,0.08);
+
+  backdrop-filter: blur(12px);
+
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+
+/* ===== INPUTS ===== */
+
+input {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #e2e8f0;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+input::placeholder {
+  color: #94a3b8;
+}
+
+
+/* ===== BUTTON ===== */
+
+.btn-primary {
+  background: linear-gradient(135deg,#14b8a6,#0f766e);
+  border: none;
+  color: white;
+  border-radius: 10px;
+  font-weight: 600;
+  padding: 10px;
+  transition: 0.3s;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 0 15px rgba(20,184,166,0.7);
+  transform: translateY(-1px);
+}

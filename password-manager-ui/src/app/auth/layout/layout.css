@@ -1,0 +1,27 @@
+/* MAIN APP BACKGROUND */
+
+.app-layout {
+  display: flex;
+  height: 100vh;
+  background: linear-gradient(135deg, #0f172a, #1e293b, #2563eb);
+  color: #e2e8f0;
+}
+.layout-content {
+  padding-top: 10px;
+}
+
+/* REMOVE WHITE BACKGROUND FROM CONTENT */
+
+.content {
+  padding: 30px;
+  overflow-y: auto;
+  background: transparent;
+}
+
+
+/* REMOVE BOOTSTRAP CONTAINER WHITE */
+
+.container {
+  background: transparent !important;
+  max-width: 100%;
+}

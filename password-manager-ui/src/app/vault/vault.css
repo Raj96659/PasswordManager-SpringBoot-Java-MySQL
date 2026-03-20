@@ -1,0 +1,197 @@
+/* ================= SEARCH ================= */
+
+.search-box {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #e2e8f0;
+  border-radius: 10px;
+  width: 250px;
+}
+
+
+/* ================= CARD ================= */
+
+.vault-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(18px);
+
+  border-radius: 16px;
+  padding: 20px;
+
+  color: #e2e8f0;
+  transition: 0.3s;
+  height: 100%;
+
+  box-shadow: 0 0 25px rgba(0,0,0,0.6);
+}
+
+.vault-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 20px rgba(20,184,166,0.5); /* teal glow */
+}
+
+
+/* ================= HEADER ================= */
+
+.vault-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+
+/* ================= ICON ================= */
+
+.vault-icon {
+  width: 45px;
+  height: 45px;
+  border-radius: 12px;
+
+  background: linear-gradient(135deg,#14b8a6,#0f766e);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+
+/* ================= STAR ================= */
+
+.fav-star {
+  font-size: 18px;
+  color: #facc15;
+}
+
+
+/* ================= BADGE ================= */
+
+.badge {
+  background: rgba(20,184,166,0.2);
+  padding: 4px 10px;
+  border-radius: 8px;
+  color: #14b8a6;
+}
+
+
+/* ================= NOTES ================= */
+
+.notes {
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+
+/* ================= BUTTON ROW ================= */
+
+.btn-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+
+/* ================= BUTTONS ================= */
+
+.btn-edit {
+  flex: 1;
+  background: linear-gradient(135deg,#14b8a6,#0f766e);
+  border: none;
+  border-radius: 8px;
+  color: white;
+}
+
+.btn-delete {
+  flex: 1;
+  background: linear-gradient(135deg,#ef4444,#dc2626);
+  border: none;
+  border-radius: 8px;
+  color: white;
+}
+
+
+/* ================= MODAL ================= */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(10px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 1000;
+}
+
+
+/* ================= MODAL CARD ================= */
+
+.modal-card {
+  width: 420px;
+  padding: 25px;
+  border-radius: 18px;
+
+  background: rgba(2,6,23,0.9);
+  border: 1px solid rgba(255,255,255,0.1);
+
+  backdrop-filter: blur(20px);
+
+  color: #e2e8f0;
+
+  box-shadow: 0 0 30px rgba(20,184,166,0.3);
+}
+
+
+/* ================= INPUTS ================= */
+
+.modal-card input,
+.modal-card textarea,
+.modal-card select {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #f1f5f9;
+  border-radius: 10px;
+}
+
+
+/* ================= PLACEHOLDER ================= */
+
+.modal-card input::placeholder,
+.modal-card textarea::placeholder {
+  color: #94a3b8;
+}
+
+
+/* ================= MODAL BUTTONS ================= */
+
+.btn-save {
+  background: linear-gradient(135deg,#14b8a6,#0f766e);
+  border: none;
+  border-radius: 10px;
+  color: white;
+}
+
+.btn-cancel {
+  background: rgba(255,255,255,0.1);
+  border: none;
+  border-radius: 10px;
+  color: #e2e8f0;
+}
+
+
+/* ================= CHECKBOX ================= */
+
+.fav-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fav-check input {
+  width: 16px;
+  height: 16px;
+  accent-color: #14b8a6;
+}

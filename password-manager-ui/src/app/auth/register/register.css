@@ -1,0 +1,262 @@
+/* Steps */
+
+.steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 25px;
+}
+
+.step {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255,255,255,0.08);
+  color: #94a3b8;
+  font-weight: bold;
+
+  position: relative;
+}
+
+.step span {
+  position: absolute;
+  top: 45px;
+  font-size: 11px;
+}
+
+.step.active {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  box-shadow: 0 0 15px rgba(99,102,241,0.7);
+}
+
+.line {
+  width: 60px;
+  height: 2px;
+  background: rgba(255,255,255,0.15);
+}
+
+/* Buttons */
+
+.buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-next,
+.btn-back,
+.btn-login {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+.btn-next {
+  background: linear-gradient(135deg, #0ea5e9, #6366f1);
+}
+
+.btn-back {
+  background: #475569;
+}
+
+.btn-login {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+}
+/* Background */
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: linear-gradient(135deg, #0f172a, #1e293b, #2563eb);
+
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Card */
+
+.auth-card {
+  width: 420px;
+  padding: 40px;
+
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(20px);
+
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.08);
+
+  box-shadow:
+    0 0 40px rgba(124, 58, 237, 0.25);
+
+  color: white;
+}
+
+/* Icon */
+
+.user-icon {
+  width: 70px;
+  height: 70px;
+  margin: auto;
+  margin-bottom: 15px;
+
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+
+  font-size: 28px;
+
+  box-shadow: 0 0 20px rgba(99,102,241,0.7);
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 25px;
+}
+.input-group {
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.input-group i {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px 40px;   /* IMPORTANT */
+  padding-left: 42px;   /* SPACE FOR ICON */
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.15);
+
+  background: rgba(255,255,255,0.05);
+  color: white;
+
+  outline: none;
+}
+
+.input-group input::placeholder {
+  color: #94a3b8;
+}
+.toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #94a3b8;
+}
+input.form-control {
+   background: rgba(255,255,255,0.05) !important;
+   color: white !important;
+   border: 1px solid rgba(255,255,255,0.15) !important;
+ }
+
+/* Strength */
+
+.strength {
+  margin-bottom: 10px;
+}
+
+.bar {
+  height: 6px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 10px;
+}
+
+.fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: 0.3s;
+}
+
+/* Generator */
+
+.btn-gen {
+  width: 100%;
+  margin-bottom: 20px;
+  padding: 10px;
+
+  border-radius: 10px;
+  border: none;
+
+  background: linear-gradient(135deg, #0ea5e9, #6366f1);
+  color: white;
+
+  cursor: pointer;
+}
+
+/* Questions */
+
+.questions h4 {
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+
+.questions label {
+  font-size: 13px;
+  color: #cbd5f5;
+}
+
+.questions input {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 10px;
+
+  border-radius: 10px;
+
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+
+  color: white;
+}
+
+/* Button */
+
+.btn-login {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+
+  border: none;
+
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+
+  color: white;
+  font-weight: 600;
+  letter-spacing: 1px;
+
+  cursor: pointer;
+}
+
+/* Links */
+
+.links {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.links a {
+  color: #a5b4fc;
+  font-size: 13px;
+  text-decoration: none;
+}
