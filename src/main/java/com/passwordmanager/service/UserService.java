@@ -41,9 +41,6 @@ public class UserService {
     private final PasswordEntryRepository passwordEntryRepository;
 
 
-
-
-
     public UserService(UserRepository userRepository, PasswordEncoder encoder, VerificationCodeRepository verificationCodeRepository, SecurityQuestionRepository securityQuestionRepository, PasswordEntryRepository passwordEntryRepository) {
         this.userRepository = userRepository;
         this.encoder = encoder;
@@ -245,42 +242,7 @@ public Map<String, String> login(String username, String masterPassword) {
         return "Master password updated successfully";
     }
 
-//    public String recoverPassword(RecoveryRequest request) {
-//
-//        User user = userRepository.findByUsername(
-//                        request.getUsername())
-//                .orElseThrow(() -> new RuntimeException("User not found"));
-//
-//        List<SecurityQuestion> questions =
-//                securityQuestionRepository.findByUser(user);
-//
-//        if (questions.size() < 3) {
-//            throw new RuntimeException("Security questions not configured");
-//        }
-//
-//        for (SecurityQuestion q : questions) {
-//
-//            String provided =
-//                    request.getAnswers().get(q.getId());
-//
-//            if (provided == null ||
-//                    !encoder.matches(provided, q.getAnswerHash())) {
-//
-//                throw new RuntimeException("Security answers incorrect");
-//            }
-//        }
-//
-//        // Now reset password
-//        String newSalt = SaltUtil.generateSalt();
-//
-//        user.setMasterPasswordHash(
-//                encoder.encode(request.getNewPassword()));
-//        user.setEncryptionSalt(newSalt);
-//
-//        userRepository.save(user);
-//
-//        return "Password reset successful";
-//    }
+
 
     public String updateProfile(
             String username,
@@ -329,38 +291,7 @@ public Map<String, String> login(String username, String masterPassword) {
 
 
 
-//    public String recoverMasterPassword(
-//            String username,
-//            List<String> answers,
-//            String newPassword) {
-//
-//        User user = userRepository.findByUsername(username)
-//                .orElseThrow(() -> new RuntimeException("User not found"));
-//
-//        List<SecurityQuestion> questions =
-//                securityQuestionRepository.findByUser(user);
-//
-//        if (questions.size() != answers.size()) {
-//            throw new RuntimeException("Invalid answers");
-//        }
-//
-//        for (int i = 0; i < questions.size(); i++) {
-//
-//            String storedHash = questions.get(i).getAnswerHash();
-//            String providedAnswer = answers.get(i);
-//
-//            if (!encoder.matches(providedAnswer, storedHash)) {
-//                throw new RuntimeException("Incorrect answers");
-//            }
-//        }
-//
-//        user.setMasterPasswordHash(
-//                encoder.encode(newPassword));
-//
-//        userRepository.save(user);
-//
-//        return "Master password reset successful";
-//    }
+
 
     @Transactional
     public String recoverMasterPassword(

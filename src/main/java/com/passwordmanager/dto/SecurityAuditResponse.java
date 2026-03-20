@@ -9,10 +9,12 @@ public class SecurityAuditResponse {
     private int weakCount;
     private int reusedCount;
     private int oldCount;
+    private int strongCount;
 
     private List<String> weakAccounts;
     private List<String> reusedAccounts;
     private List<String> oldAccounts;
+    private List<String> strongAccounts;
 
     public int getWeakCount() {
         return weakCount;
@@ -70,5 +72,13 @@ public class SecurityAuditResponse {
 
     public void setSecurityScore(int securityScore) {
         this.securityScore = securityScore;
+    }
+
+    public int getStrongCount() { return strongCount; }
+    public void setStrongCount(int strongCount) { this.strongCount = strongCount; }
+
+    public List<String> getStrongAccounts() { return strongAccounts; }
+    public void setStrongAccounts(List<String> strongAccounts) {
+        this.strongAccounts = strongAccounts;
     }
 }

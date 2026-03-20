@@ -405,17 +405,73 @@ public class PasswordEntryService {
         return oldCount;
     }
 
+//    public DashboardResponse getDashboard(
+//            String username,
+//            String masterPassword) {
+//
+//        User user = userRepository.findByUsername(username)
+//                .orElseThrow(() -> new RuntimeException("User not found"));
+//
+//
+//        SecretKeySpec key =
+//                KeyDerivationUtil.deriveKey(
+//                        masterPassword,
+//                        user.getEncryptionSalt()
+//                );
+//
+//        List<PasswordEntry> entries =
+//                passwordEntryRepository.findByUser(user);
+//
+//        int total = entries.size();
+//        int weak = 0;
+//        int favorites = 0;
+//
+//        Map<String, Integer> reusedMap = new HashMap<>();
+//
+//        for (PasswordEntry entry : entries) {
+//
+//            if (entry.isFavorite()) favorites++;
+//
+//            String decrypted =
+//                    EncryptionUtil.decrypt(
+//                            entry.getEncryptedPassword(),
+//                            key);
+//
+//            String strength =
+//                    PasswordStrengthUtil.checkStrength(decrypted);
+//
+//            if (strength.equals("Weak")) weak++;
+//
+//            reusedMap.put(
+//                    decrypted,
+//                    reusedMap.getOrDefault(decrypted, 0) + 1
+//            );
+//        }
+//
+//        int reused = 0;
+//        for (int count : reusedMap.values()) {
+//            if (count > 1) reused++;
+//        }
+//
+//        int old = countOldPasswords(username);
+//
+//        DashboardResponse response = new DashboardResponse();
+//        response.setTotalPasswords(total);
+//        response.setWeakPasswords(weak);
+//        response.setReusedPasswords(reused);
+//        response.setOldPasswords(old);
+//        response.setFavoritePasswords(favorites);
+//
+//        return response;
+//    }
+
+
     public DashboardResponse getDashboard(
             String username,
             String masterPassword) {
 
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
-//        if (!passwordEncoder.matches(masterPassword,
-//                user.getMasterPasswordHash())) {
-//            throw new RuntimeException("Master password incorrect");
-//        }
 
         SecretKeySpec key =
                 KeyDerivationUtil.deriveKey(
@@ -428,6 +484,7 @@ public class PasswordEntryService {
 
         int total = entries.size();
         int weak = 0;
+        int strong = 0;   // 🔥 NEW
         int favorites = 0;
 
         Map<String, Integer> reusedMap = new HashMap<>();
@@ -444,7 +501,15 @@ public class PasswordEntryService {
             String strength =
                     PasswordStrengthUtil.checkStrength(decrypted);
 
-            if (strength.equals("Weak")) weak++;
+            // 🔴 Weak
+            if (strength.equalsIgnoreCase("Weak")) {
+                weak++;
+            }
+
+            // 🟢 Strong
+            else if (strength.equalsIgnoreCase("Strong")) {
+                strong++;
+            }
 
             reusedMap.put(
                     decrypted,
@@ -457,13 +522,13 @@ public class PasswordEntryService {
             if (count > 1) reused++;
         }
 
-        int old = countOldPasswords(username);
+        // ❌ REMOVED old password logic
 
         DashboardResponse response = new DashboardResponse();
         response.setTotalPasswords(total);
         response.setWeakPasswords(weak);
+        response.setStrongPasswords(strong);   // 🔥 NEW
         response.setReusedPasswords(reused);
-        response.setOldPasswords(old);
         response.setFavoritePasswords(favorites);
 
         return response;
@@ -544,6 +609,7 @@ public class PasswordEntryService {
         List<String> weakAccounts = new ArrayList<>();
         List<String> oldAccounts = new ArrayList<>();
         Map<String, List<String>> reusedMap = new HashMap<>();
+        List<String> strongAccounts = new ArrayList<>();
 
         for (PasswordEntry entry : entries) {
 
@@ -554,10 +620,17 @@ public class PasswordEntryService {
             String strength =
                     PasswordStrengthUtil.checkStrength(decrypted);
 
-            if (strength.equals("Weak")) {
+            // 🔴 Weak
+            if (strength.equalsIgnoreCase("Weak")) {
                 weakAccounts.add(entry.getAccountName());
             }
 
+            // 🟢 Strong (NEW)
+            else if (strength.equalsIgnoreCase("Strong")) {
+                strongAccounts.add(entry.getAccountName());
+            }
+
+            // 🟡 Old
             if (entry.getUpdatedAt() != null &&
                     entry.getUpdatedAt().isBefore(
                             LocalDateTime.now().minusDays(90))) {
@@ -565,9 +638,12 @@ public class PasswordEntryService {
                 oldAccounts.add(entry.getAccountName());
             }
 
+            // 🔁 Reused
             reusedMap.computeIfAbsent(decrypted, k -> new ArrayList<>())
                     .add(entry.getAccountName());
         }
+
+
 
         List<String> reusedAccounts = new ArrayList<>();
 
@@ -584,6 +660,8 @@ public class PasswordEntryService {
         response.setWeakAccounts(weakAccounts);
         response.setReusedAccounts(reusedAccounts);
         response.setOldAccounts(oldAccounts);
+        response.setStrongCount(strongAccounts.size());
+        response.setStrongAccounts(strongAccounts);
 
         int score = 100;
 

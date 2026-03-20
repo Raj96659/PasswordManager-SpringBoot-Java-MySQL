@@ -5,8 +5,8 @@ public class DashboardResponse {
     private int totalPasswords;
     private int weakPasswords;
     private int reusedPasswords;
-    private int oldPasswords;
     private int favoritePasswords;
+    private int strongPasswords;
 
     // Default constructor
     public DashboardResponse() {
@@ -21,7 +21,6 @@ public class DashboardResponse {
         this.totalPasswords = totalPasswords;
         this.weakPasswords = weakPasswords;
         this.reusedPasswords = reusedPasswords;
-        this.oldPasswords = oldPasswords;
         this.favoritePasswords = favoritePasswords;
     }
 
@@ -51,19 +50,19 @@ public class DashboardResponse {
         this.reusedPasswords = reusedPasswords;
     }
 
-    public int getOldPasswords() {
-        return oldPasswords;
-    }
-
-    public void setOldPasswords(int oldPasswords) {
-        this.oldPasswords = oldPasswords;
-    }
-
     public int getFavoritePasswords() {
         return favoritePasswords;
     }
 
     public void setFavoritePasswords(int favoritePasswords) {
         this.favoritePasswords = favoritePasswords;
+    }
+
+    public int getStrongPasswords() {
+        return strongPasswords;
+    }
+
+    public void setStrongPasswords(int strongPasswords) {
+        this.strongPasswords = strongPasswords;
     }
 }
